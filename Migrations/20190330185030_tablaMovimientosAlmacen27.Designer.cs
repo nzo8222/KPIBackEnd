@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaKPI_API.Context;
 
 namespace SistemaKPI_API.Migrations
 {
     [DbContext(typeof(SistemaKPIContext))]
-    partial class SistemaKPIContextModelSnapshot : ModelSnapshot
+    [Migration("20190330185030_tablaMovimientosAlmacen27")]
+    partial class tablaMovimientosAlmacen27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,7 +21,7 @@ namespace SistemaKPI_API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("SistemaKPI_API.Entities.MovimientosAlmacen2", b =>
+            modelBuilder.Entity("SistemaKPI_API.Entities.MovimientosAlmacen", b =>
                 {
                     b.Property<Guid>("IdMovimientoAlmacen")
                         .ValueGeneratedOnAdd();
@@ -51,6 +53,42 @@ namespace SistemaKPI_API.Migrations
                     b.HasKey("IdPedidoCliente");
 
                     b.ToTable("PedidosCliente");
+                });
+
+            modelBuilder.Entity("SistemaKPI_API.Entities.Producto", b =>
+                {
+                    b.Property<Guid>("IdProducto")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CodigoProducto");
+
+                    b.Property<string>("Descripcion");
+
+                    b.Property<decimal>("Precio");
+
+                    b.HasKey("IdProducto");
+
+                    b.ToTable("Producto");
+                });
+
+            modelBuilder.Entity("SistemaKPI_API.Entities.ProductoDetalle", b =>
+                {
+                    b.Property<Guid>("IdProductoDetalle")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Cantidad");
+
+                    b.Property<decimal>("CostoUnitario");
+
+                    b.Property<Guid?>("IdProducto");
+
+                    b.Property<decimal>("Total");
+
+                    b.HasKey("IdProductoDetalle");
+
+                    b.HasIndex("IdProducto");
+
+                    b.ToTable("ProductosDetalles");
                 });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.ProductoInventario", b =>
@@ -195,6 +233,13 @@ namespace SistemaKPI_API.Migrations
                     b.HasKey("IdProduccion");
 
                     b.ToTable("ReporteProduccion");
+                });
+
+            modelBuilder.Entity("SistemaKPI_API.Entities.ProductoDetalle", b =>
+                {
+                    b.HasOne("SistemaKPI_API.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("IdProducto");
                 });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.ProductoInventario", b =>

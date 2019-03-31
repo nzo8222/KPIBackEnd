@@ -26,3 +26,17 @@ C:\Users\gonzo\Documents\sistemaKPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_AP
 C:\Users\gonzo\Documents\sistemaKPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.RazorTargetAssemblyInfo.cache
 C:\Users\gonzo\Documents\sistemaKPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.dll
 C:\Users\gonzo\Documents\sistemaKPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.pdb
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\bin\Debug\netcoreapp2.2\SistemaKPI_API.deps.json
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\bin\Debug\netcoreapp2.2\SistemaKPI_API.runtimeconfig.json
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\bin\Debug\netcoreapp2.2\SistemaKPI_API.runtimeconfig.dev.json
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\bin\Debug\netcoreapp2.2\SistemaKPI_API.dll
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\bin\Debug\netcoreapp2.2\SistemaKPI_API.pdb
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.csprojAssemblyReference.cache
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.csproj.CoreCompileInputs.cache
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.RazorAssemblyInfo.cache
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.RazorAssemblyInfo.cs
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.AssemblyInfoInputs.cache
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.AssemblyInfo.cs
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.RazorTargetAssemblyInfo.cache
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.dll
+C:\Users\gonzo\Documents\sistemaKPIBackEnd3\KPIBackEnd\obj\Debug\netcoreapp2.2\SistemaKPI_API.pdb

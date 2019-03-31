@@ -26,7 +26,7 @@ namespace SistemaKPI_API.Controllers
         {
             // Agrega la fecha de hoy.
             pedidoCliente.FechaRegistro = DateTime.Now;
-
+             
             // Agrega el pedido al contexto.
             _context.PedidosCliente.Add(pedidoCliente);
 

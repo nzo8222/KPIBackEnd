@@ -1,9 +1,11 @@
 ﻿using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using SistemaKPI_API.Context;
 using SistemaKPI_API.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -114,14 +116,42 @@ namespace SistemaKPI_API.Controllers
         [Route("GetPedidosProducto")]
         public IActionResult GetProducto()
         {
-            var pedidoProducto = _context.PedidoProductoKPI.ToList();
+            // Calcular el cumplimiento.
+
+            var cumplimiento = CalcularKPIAlmacenCumplimiento();
+
+            // Inserta datos.
+            //_context.PedidosCliente.Add(new PedidoCliente
+            //{
+            //    FechaEntrega = new DateTime(2018, 12, 12),
+            //    FechaRegistro = new DateTime(2018, 11, 11),
+            //    ProductosContpaq = new List<ProductoInventario>
+            //    {
+            //        new ProductoInventario{ CantidadBolsas = "11", CodigoProducto = "1111"},
+            //        new ProductoInventario{ CantidadBolsas = "22", CodigoProducto = "2222"},
+            //        new ProductoInventario{ CantidadBolsas = "33", CodigoProducto = "3333"},
+            //    }
+            //});
+
+            //_context.MovimientosAlmacen.Add(new MovimientosAlmacen2 {
+            //    CodigoProducto = "1111",
+            //    FechaMovimiento = new DateTime(2018, 11, 25),
+            //    NombreProducto = "Quesadillas deliciosas",
+            //    NumBolsas = "22",
+            //    TipoMovimiento = "Demo"
+            //});
+
+            //_context.SaveChanges();
+
+
+            //var pedidoProducto = _context.PedidoProductoKPI.ToList();
             // Obtiene el producto desde el contexto.
             //var producto = _context.Productos.FirstOrDefault(p => p.IdProducto == IdProducto);
 
             // Regresa el producto si lo encuentra, si no regresa NotFound.
             //if (producto == null) return new NotFoundResult();
 
-            return new OkObjectResult(pedidoProducto);
+            return new OkObjectResult("");
         }
 
         [HttpGet]
@@ -135,32 +165,45 @@ namespace SistemaKPI_API.Controllers
             return new OkObjectResult(productosInventario);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> AgregarProducto([FromBody] Producto producto)
-        //{
-        //    // Flujo nuevo producto.
-        //    if (producto.IdProducto == Guid.Empty)
-        //    {
-        //        // Se añade el producto al contexto.
-        //        //await _context.Productos.AddAsync(producto);
-        //    }
-        //    // Flujo editar producto.
-        //    else
-        //    {
-        //        // Obtiene el producto desde el contexto.
-        //        //var prodbd = _context.Productos.FirstOrDefault(p => p.IdProducto == producto.IdProducto);
+        [HttpPost]
+        public async Task<IActionResult> AgregarProducto([FromBody] MovimientosAlmacen2 movimientoAlmacen)
+        {
+            // Flujo nuevo producto.
+            if (movimientoAlmacen.IdMovimientoAlmacen == Guid.Empty)
+            {
+                // Se añade el producto al contexto.
+                await _context.MovimientosAlmacen.AddAsync(movimientoAlmacen);
+            }
+            // Flujo editar producto.
+            else
+            {
+                // Obtiene el producto desde el contexto.
+                var movbd = _context.MovimientosAlmacen.FirstOrDefault(p => p.IdMovimientoAlmacen == movimientoAlmacen.IdMovimientoAlmacen);
 
-        //        // Proceso de mapeo (puedes usar AutoMapper)
-        //        //prodbd.Descripcion = producto.Descripcion;
-        //        producto.Precio = producto.Precio;
-        //    }
+                if(movbd != null)
+                {
+                    movbd.CodigoProducto = movimientoAlmacen.CodigoProducto;
+                    movbd.NombreProducto = movimientoAlmacen.NombreProducto;
+                    movbd.TipoMovimiento = movimientoAlmacen.TipoMovimiento;
+                    movbd.NumBolsas = movimientoAlmacen.NumBolsas;
+                    movbd.FechaMovimiento = movimientoAlmacen.FechaMovimiento;
+                    movbd.Turno = movimientoAlmacen.Turno;
+                    _context.MovimientosAlmacen.Update(movbd);
+                }
+                else
+                {
+                    return new OkObjectResult("No se encontro el movimiento");
+                }
+                // Proceso de mapeo (puedes usar AutoMapper)
+               
+            }
 
-        //    // Se guarda el estado del contexto para reflejar cambios.
-        //    await _context.SaveChangesAsync();
+            // Se guarda el estado del contexto para reflejar cambios.
+            await _context.SaveChangesAsync();
 
-        //    // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-        //    return new OkObjectResult(producto);
-        //}
+            // Regresa un código de status 200 (OK) con un mensaje dentro del body.
+            return new OkObjectResult(movimientoAlmacen);
+        }
 
         //[HttpDelete("{idProducto}")]
         //public IActionResult DeleteProducto([FromRoute] Guid IdProducto)
@@ -176,5 +219,42 @@ namespace SistemaKPI_API.Controllers
         //    // Regresa un código de status 200 (OK) sin mensaje dentro del body.
         //    return new OkResult();
         //}
+
+        private double CalcularKPIAlmacenCumplimiento()
+        {
+            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+
+            double cumplimiento = 0.0;
+            foreach (var productoPedido in pedidos)
+            {
+                foreach (var producto in productoPedido.ProductosContpaq)
+                {
+                    // Obtiene todos los movimientos.
+                    var movimientos = _context.MovimientosAlmacen.ToArray();
+
+                    var movimientoAlmacen = _context.MovimientosAlmacen.Where(a => a.CodigoProducto == producto.CodigoProducto
+                    && a.FechaMovimiento >= productoPedido.FechaRegistro
+                    && a.FechaMovimiento <= productoPedido.FechaEntrega).FirstOrDefault();
+
+                    // Si no se encuentra un movimiento en esa fecha continua.
+                    if (movimientoAlmacen == null) continue;
+
+                    // Si ya fue calculado no lo vuelvas a calcular.
+                    //if (producto.Cumplimiento == null) return Convert.ToDouble(producto.Cumplimiento);
+
+                    var parsedNumeroBolsasMovimiento = Convert.ToInt32(movimientoAlmacen.NumBolsas);
+                    var parsedNumberobolsasProducto = Convert.ToInt32(producto.CantidadBolsas);
+
+                    var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
+
+                    cumplimiento = (parsedNumeroBolsasMovimiento * 100 / parsedNumberobolsasProducto) * .01;
+
+                    producto.Cumplimiento = cumplimiento.ToString();
+                    _context.SaveChanges();
+                }
+            }
+
+            return cumplimiento;
+        }
     }
 }

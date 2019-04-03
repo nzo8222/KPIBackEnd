@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SistemaKPI_API.Context;
 using SistemaKPI_API.Entities;
 using SistemaKPI_API.Models;
@@ -44,7 +45,8 @@ namespace SistemaKPI_API.Controllers
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
-        } 
+        }
 
+  
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaKPI_API.Context;
 
 namespace SistemaKPI_API.Migrations
 {
     [DbContext(typeof(SistemaKPIContext))]
-    partial class SistemaKPIContextModelSnapshot : ModelSnapshot
+    [Migration("20190402170404_cambioTablaMovimientoAlmacen1")]
+    partial class cambioTablaMovimientoAlmacen1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +35,6 @@ namespace SistemaKPI_API.Migrations
                     b.Property<string>("NumBolsas");
 
                     b.Property<string>("TipoMovimiento");
-
-                    b.Property<string>("Turno");
 
                     b.HasKey("IdMovimientoAlmacen");
 

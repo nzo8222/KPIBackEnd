@@ -16,5 +16,6 @@ namespace SistemaKPI_API.Entities
 
         public string NumBolsas { get; set; }
         public DateTime FechaMovimiento { get; set; }
+        public string Turno { get; set; }
     }
 }

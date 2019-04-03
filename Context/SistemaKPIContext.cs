@@ -34,7 +34,7 @@ namespace SistemaKPI_API.Context
                 .Property(v => v.CodigoProducto).HasColumnName("CodigoProducto");
             modelBuilder
                .Query<PedidoProductoKPI>().ToView("View_PedidoProducto")
-               .Property(v => v.CantidadPiezas).HasColumnName("CantidadPiezas");
+               .Property(v => v.CantidadBolsas).HasColumnName("CantidadBolsas");
 
             modelBuilder
                 .Query<PedidoProductoKPI>().ToView("View_PedidoProducto")

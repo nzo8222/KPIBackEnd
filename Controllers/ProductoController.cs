@@ -179,8 +179,10 @@ namespace SistemaKPI_API.Controllers
             movimientoAlmacen.CodigoProducto = movimientoAlmacenDTO.CodigoProducto;
             movimientoAlmacen.NombreProducto = movimientoAlmacenDTO.NombreProducto;
             movimientoAlmacen.TipoMovimiento = movimientoAlmacenDTO.TipoMovimiento;
+            movimientoAlmacen.NumBolsas = movimientoAlmacenDTO.NumBolsas;
             movimientoAlmacen.Turno = movimientoAlmacenDTO.Turno;
             movimientoAlmacen.FechaMovimiento = DateTime.Now;
+            movimientoAlmacen.FolioRemision = movimientoAlmacenDTO.FolioRemision;
 
             try
             {

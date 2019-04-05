@@ -15,5 +15,7 @@ namespace SistemaKPI_API.DTOs
         public string NumBolsas { get; set; }
         
         public string Turno { get; set; }
+
+        public string FolioRemision { get; set; }
     }
 }

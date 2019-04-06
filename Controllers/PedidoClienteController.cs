@@ -47,6 +47,15 @@ namespace SistemaKPI_API.Controllers
             );
         }
 
-  
+
+        [HttpGet]
+        [Route("GetPedidosProducto")]
+        public IActionResult GetProductos()
+        {
+            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+
+            return new OkObjectResult(pedidos);
+        }
+
     }
 }

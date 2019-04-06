@@ -169,7 +169,7 @@ namespace SistemaKPI_API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AgregarProducto([FromBody] MovimientoAlmacenDTO movimientoAlmacenDTO)
+        public async Task<IActionResult> AgregarMovimiento([FromBody] MovimientoAlmacenDTO movimientoAlmacenDTO)
         {
             //// Flujo nuevo producto.
             //if (movimientoAlmacen.IdMovimientoAlmacen == Guid.Empty)
@@ -194,11 +194,11 @@ namespace SistemaKPI_API.Controllers
                 return new OkObjectResult(new RespuetaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
-
+            CalcularKPIAlmacenCumplimiento();
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
-            
+
             //}
             //// Flujo editar producto.
             //else
@@ -218,17 +218,56 @@ namespace SistemaKPI_API.Controllers
             //    }
             //    else
             //    {
-                    //return new OkObjectResult("No se encontro el movimiento");
-                //}
-                // Proceso de mapeo (puedes usar AutoMapper)
-               
+            //return new OkObjectResult("No se encontro el movimiento");
+            //}
+            // Proceso de mapeo (puedes usar AutoMapper)
+
             //}
 
             // Se guarda el estado del contexto para reflejar cambios.
-           
+
+            //// Flujo nuevo producto.
+            //if (movimientoAlmacen.IdMovimientoAlmacen == Guid.Empty)
+            //{
+            //    // Se añade el producto al contexto.
+            //    await _context.MovimientosAlmacen.AddAsync(movimientoAlmacen);
+            //}
+            //// Flujo editar producto.
+            //else
+            //{
+            //    // Obtiene el producto desde el contexto.
+            // Regresa un código de status 200 (OK) con un mensaje dentro del body.
+
+        }
+        [HttpPost]
+        [Route("PutProductoPedido")]
+        public async Task<IActionResult> ModificarProductoPedido([FromBody] ProductoInventarioDTO productoPedidoDTO)
+        {
+            var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
+            if (prodBD != null)
+            {
+                prodBD.CodigoProducto = productoPedidoDTO.CodigoProducto;
+                prodBD.NombreProducto = productoPedidoDTO.NombreProducto;
+                prodBD.RazonSocial = productoPedidoDTO.RazonSocial;
+                prodBD.CantidadBolsas = productoPedidoDTO.CantidadBolsas;
+                prodBD.Cumplimiento = productoPedidoDTO.Cumplimiento;
+                prodBD.Devoluciones = productoPedidoDTO.Devoluciones;
+
+                _context.ProductosInventario.Update(prodBD);
+            }
+            else
+            {
+                return new OkObjectResult("No se encontro el producto");
+            }
+            // Proceso de mapeo (puedes usar AutoMapper)
+
+            //}
+            CalcularKPIAlmacenCumplimiento();
+            // Se guarda el estado del contexto para reflejar cambios.
+            await _context.SaveChangesAsync();
 
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            
+            return new OkObjectResult(prodBD);
         }
         [HttpPut("{IdMovimientoAlmacen}")]
         public async Task<IActionResult> ModificarMovimientoAlmacen([FromBody] MovimientosAlmacen2 movimientoAlmacen)
@@ -285,7 +324,7 @@ namespace SistemaKPI_API.Controllers
         //    return new OkResult();
         //}
 
-        private double CalcularKPIAlmacenCumplimiento()
+        private void CalcularKPIAlmacenCumplimiento()
         {
             var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
 
@@ -298,6 +337,7 @@ namespace SistemaKPI_API.Controllers
                     var movimientos = _context.MovimientosAlmacen.ToArray();
 
                     var movimientoAlmacen = _context.MovimientosAlmacen.Where(a => a.CodigoProducto == producto.CodigoProducto
+                    && a.TipoMovimiento == "Salida"
                     && a.FechaMovimiento >= productoPedido.FechaRegistro
                     && a.FechaMovimiento <= productoPedido.FechaEntrega).FirstOrDefault();
 
@@ -309,17 +349,22 @@ namespace SistemaKPI_API.Controllers
 
                     var parsedNumeroBolsasMovimiento = Convert.ToInt32(movimientoAlmacen.NumBolsas);
                     var parsedNumberobolsasProducto = Convert.ToInt32(producto.CantidadBolsas);
-
+                    var parsedNumerobolsasDevuelto = 0;
+                    if (producto.Devoluciones!=null)
+                    {
+                        parsedNumerobolsasDevuelto = Convert.ToInt32(producto.Devoluciones);
+                    }
+                    
                     var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
 
-                    cumplimiento = (parsedNumeroBolsasMovimiento * 100 / parsedNumberobolsasProducto) * .01;
+                    cumplimiento = ( (parsedNumeroBolsasMovimiento - parsedNumerobolsasDevuelto) * 100 / parsedNumberobolsasProducto) * .01;
 
                     producto.Cumplimiento = cumplimiento.ToString();
                     _context.SaveChanges();
                 }
             }
 
-            return cumplimiento;
+            //return cumplimiento;
         }
     }
 }

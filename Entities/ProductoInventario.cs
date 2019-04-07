@@ -15,6 +15,9 @@ namespace SistemaKPI_API.Entities
         public string NombreProducto { get; set; }
         public string CodigoProducto { get; set; }
         public int CantidadPiezas { get; set; }
+        public int Cumplimiento { get; set; }
+        public int Devoluciones { get; set; }
+        public int Discrepancia { get; set; }
 
         [ForeignKey("IdPedidoCliente")]
         public Guid IdPedidoCliente { get; set; }

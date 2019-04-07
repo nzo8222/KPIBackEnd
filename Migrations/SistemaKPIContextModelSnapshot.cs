@@ -100,6 +100,8 @@ namespace SistemaKPI_API.Migrations
                     b.Property<Guid>("IdProductoInventario")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("CantidadPiezas");
+
                     b.Property<string>("CodigoProducto");
 
                     b.Property<Guid>("IdPedidoCliente");
@@ -113,6 +115,122 @@ namespace SistemaKPI_API.Migrations
                     b.HasIndex("IdPedidoCliente");
 
                     b.ToTable("ProductosInventario");
+                });
+
+            modelBuilder.Entity("SistemaKPI_API.Entities.ReporteDiarioPedidosClienteCSV", b =>
+                {
+                    b.Property<Guid>("IdPedido")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Anho");
+
+                    b.Property<string>("Capacidad");
+
+                    b.Property<string>("Cargadores");
+
+                    b.Property<string>("Cliente");
+
+                    b.Property<string>("CodigoCargadores");
+
+                    b.Property<string>("CodigoChofer");
+
+                    b.Property<string>("CodigoNuevo");
+
+                    b.Property<string>("DiaDeSemana");
+
+                    b.Property<string>("DiaDelMes");
+
+                    b.Property<string>("Flete");
+
+                    b.Property<string>("NombreDelChofer");
+
+                    b.Property<string>("NombreMes");
+
+                    b.Property<string>("NumBolzXTarima");
+
+                    b.Property<string>("NumDeDia");
+
+                    b.Property<string>("NumPzBol");
+
+                    b.Property<string>("NumPzXTarima");
+
+                    b.Property<string>("NumeroDeCaja");
+
+                    b.Property<string>("PedidoPorBolsa");
+
+                    b.Property<string>("PedidoPorPieza");
+
+                    b.Property<string>("PorcentajeCumplimiento");
+
+                    b.Property<string>("Presentacion");
+
+                    b.Property<string>("SemanaAnual");
+
+                    b.Property<string>("SemanaMes");
+
+                    b.Property<string>("SurtidoPorBolsa");
+
+                    b.Property<string>("SurtidoPorPz");
+
+                    b.Property<string>("TiempoDeCarga");
+
+                    b.HasKey("IdPedido");
+
+                    b.ToTable("ReporteDiarioPedidosClienteCSV");
+                });
+
+            modelBuilder.Entity("SistemaKPI_API.Entities.ReporteProduccion", b =>
+                {
+                    b.Property<Guid>("IdProduccion")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Anho");
+
+                    b.Property<string>("CantidadBolsas");
+
+                    b.Property<string>("CantidadPiezas");
+
+                    b.Property<string>("Capacidad");
+
+                    b.Property<string>("Cliente");
+
+                    b.Property<string>("CodigoNuevo");
+
+                    b.Property<string>("Dia");
+
+                    b.Property<string>("Eficiencia");
+
+                    b.Property<string>("Familia");
+
+                    b.Property<string>("HRUsadas");
+
+                    b.Property<string>("Maquina");
+
+                    b.Property<string>("Mes");
+
+                    b.Property<string>("MinutosUsados");
+
+                    b.Property<string>("Poletileno");
+
+                    b.Property<string>("Presentacion");
+
+                    b.Property<string>("ScrapBolsa");
+
+                    b.Property<string>("ScrapPolietilenoGr");
+
+                    b.Property<string>("Semana");
+
+                    b.Property<string>("Supervisor");
+
+                    b.Property<string>("TiempoDecimal");
+
+                    b.Property<string>("TotalDeCavidades");
+
+                    b.Property<string>("Turno");
+
+                    b.HasKey("IdProduccion");
+
+                    b.ToTable("ReporteProduccion");
                 });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.Pedido", b =>

@@ -21,7 +21,7 @@ namespace SistemaKPI_API.Context
         public DbSet<ProductoDetalle> ProductosDetalles { get; set; }
         public DbSet<PedidoCliente> PedidosCliente { get; set; }
         public DbSet<ProductoInventario> ProductosInventario { get; set; }
-
-
+        public DbSet<ReporteDiarioPedidosClienteCSV> ReporteDiarioPedidosClienteCSV { get; set; }
+        public DbSet<ReporteProduccion> ReporteProduccion { get; set; }
     }
 }

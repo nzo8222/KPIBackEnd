@@ -12978,11 +12978,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd\\SistemaKPI_API.csproj",
+      "projectUniqueName": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd2\\KPIBackEnd\\SistemaKPI_API.csproj",
       "projectName": "SistemaKPI_API",
-      "projectPath": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd\\SistemaKPI_API.csproj",
+      "projectPath": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd2\\KPIBackEnd\\SistemaKPI_API.csproj",
       "packagesPath": "C:\\Users\\gonzo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd\\obj\\",
+      "outputPath": "C:\\Users\\gonzo\\Documents\\sistemaKPIBackEnd2\\KPIBackEnd\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

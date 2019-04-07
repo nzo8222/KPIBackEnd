@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SistemaKPI_API.Context;
 using SistemaKPI_API.Entities;
 using SistemaKPI_API.Models;
@@ -25,8 +26,8 @@ namespace SistemaKPI_API.Controllers
         public IActionResult AddPedidoCliente([FromBody] PedidoCliente pedidoCliente)
         {
             // Agrega la fecha de hoy.
-            pedidoCliente.FechaRegistro = DateTime.Now;
-
+            pedidoCliente.FechaRegistro = DateTime.Now; 
+             
             // Agrega el pedido al contexto.
             _context.PedidosCliente.Add(pedidoCliente);
 
@@ -44,7 +45,17 @@ namespace SistemaKPI_API.Controllers
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
-        } 
+        }
+
+
+        [HttpGet]
+        [Route("GetPedidosProducto")]
+        public IActionResult GetProductos()
+        {
+            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+
+            return new OkObjectResult(pedidos);
+        }
 
     }
 }

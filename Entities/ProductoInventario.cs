@@ -14,7 +14,10 @@ namespace SistemaKPI_API.Entities
         public string RazonSocial { get; set; }
         public string NombreProducto { get; set; }
         public string CodigoProducto { get; set; }
-        public int CantidadPiezas { get; set; }
+        public string CantidadBolsas { get; set; }
+        public string Cumplimiento { get; set; }
+        public string Devoluciones { get; set; }
+        public string Discrepancia { get; set; }
 
         [ForeignKey("IdPedidoCliente")]
         public Guid IdPedidoCliente { get; set; }

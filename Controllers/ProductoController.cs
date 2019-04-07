@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CsvHelper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using SistemaKPI_API.Context;
 using SistemaKPI_API.Entities;
+using SistemaKPI_API.Models;
+using SistemaKPI_API.DTOs;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,23 +26,6 @@ namespace SistemaKPI_API.Controllers
             _context = ctx;
             _contpaqContext = ctxContpaq;
         }
-        [HttpGet]
-        public ActionResult GetAllProductos()
-        {
-            return new OkObjectResult(_context.Productos.ToList());
-        }
-
-        [HttpGet("{idProducto}")]
-        public IActionResult GetProducto([FromRoute] Guid IdProducto)
-        {
-            // Obtiene el producto desde el contexto.
-            var producto = _context.Productos.FirstOrDefault(p => p.IdProducto == IdProducto);
-
-            // Regresa el producto si lo encuentra, si no regresa NotFound.
-            if (producto == null) return new NotFoundResult();
-
-            return new OkObjectResult(producto);
-        }
 
         [HttpGet]
         [Route("GetContpaqProducts")]
@@ -50,46 +38,80 @@ namespace SistemaKPI_API.Controllers
             return new OkObjectResult(productosInventario);
         }
 
+       
         [HttpPost]
-        public async Task<IActionResult> AgregarProducto([FromBody] Producto producto)
+        [Route("PutProductoPedido")]
+        public async Task<IActionResult> ModificarProductoPedido([FromBody] ProductoInventarioDTO productoPedidoDTO)
         {
-            // Flujo nuevo producto.
-            if (producto.IdProducto == Guid.Empty)
+            var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
+            if (prodBD != null)
             {
-                // Se añade el producto al contexto.
-                await _context.Productos.AddAsync(producto);
+                prodBD.CodigoProducto = productoPedidoDTO.CodigoProducto;
+                prodBD.NombreProducto = productoPedidoDTO.NombreProducto;
+                prodBD.RazonSocial = productoPedidoDTO.RazonSocial;
+                prodBD.CantidadBolsas = productoPedidoDTO.CantidadBolsas;
+                prodBD.Cumplimiento = productoPedidoDTO.Cumplimiento;
+                prodBD.Devoluciones = productoPedidoDTO.Devoluciones;
+
+                _context.ProductosInventario.Update(prodBD);
             }
-            // Flujo editar producto.
             else
             {
-                // Obtiene el producto desde el contexto.
-                var prodbd = _context.Productos.FirstOrDefault(p => p.IdProducto == producto.IdProducto);
-
-                // Proceso de mapeo (puedes usar AutoMapper)
-                prodbd.Descripcion = producto.Descripcion;
-                producto.Precio = producto.Precio;
+                return new OkObjectResult("No se encontro el producto");
             }
+            // Proceso de mapeo (puedes usar AutoMapper)
 
+            //}
+            CalcularKPIAlmacenCumplimiento();
             // Se guarda el estado del contexto para reflejar cambios.
             await _context.SaveChangesAsync();
 
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            return new OkObjectResult(producto);
+            return new OkObjectResult(prodBD);
         }
+       
 
-        [HttpDelete("{idProducto}")]
-        public IActionResult DeleteProducto([FromRoute] Guid IdProducto)
+        private void CalcularKPIAlmacenCumplimiento()
         {
-            // Obtiene el producto desde el contexto.
-            var producto = _context.Productos.FirstOrDefault(p => p.IdProducto == IdProducto);
+            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
 
-            // Elimina si lo encuentra, si no regresa NotFound.
-            if (producto == null) return new NotFoundResult();
+            double cumplimiento = 0.0;
+            foreach (var productoPedido in pedidos)
+            {
+                foreach (var producto in productoPedido.ProductosContpaq)
+                {
+                    // Obtiene todos los movimientos.
+                    var movimientos = _context.MovimientosAlmacen.ToArray();
 
-            _context.Productos.Remove(producto);
+                    var movimientoAlmacen = _context.MovimientosAlmacen.Where(a => a.CodigoProducto == producto.CodigoProducto
+                    && a.TipoMovimiento == "Salida"
+                    && a.FechaMovimiento >= productoPedido.FechaRegistro
+                    && a.FechaMovimiento <= productoPedido.FechaEntrega).FirstOrDefault();
 
-            // Regresa un código de status 200 (OK) sin mensaje dentro del body.
-            return new OkResult();
+                    // Si no se encuentra un movimiento en esa fecha continua.
+                    if (movimientoAlmacen == null) continue;
+
+                    // Si ya fue calculado no lo vuelvas a calcular.
+                    //if (producto.Cumplimiento == null) return Convert.ToDouble(producto.Cumplimiento);
+
+                    var parsedNumeroBolsasMovimiento = Convert.ToInt32(movimientoAlmacen.NumBolsas);
+                    var parsedNumberobolsasProducto = Convert.ToInt32(producto.CantidadBolsas);
+                    var parsedNumerobolsasDevuelto = 0;
+                    if (producto.Devoluciones!=null)
+                    {
+                        parsedNumerobolsasDevuelto = Convert.ToInt32(producto.Devoluciones);
+                    }
+                    
+                    var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
+
+                    cumplimiento = ( (parsedNumeroBolsasMovimiento - parsedNumerobolsasDevuelto) * 100 / parsedNumberobolsasProducto) * .01;
+
+                    producto.Cumplimiento = cumplimiento.ToString();
+                    _context.SaveChanges();
+                }
+            }
+
+            //return cumplimiento;
         }
     }
 }

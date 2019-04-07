@@ -12,7 +12,7 @@ namespace SistemaKPI_API.Entities
         [Key]
         public Guid IdPedidoCliente { get; set; }
 
-        public DateTime FechaRegistro { get; set; }
+        public DateTime FechaRegistro { get; set; } 
 
         public DateTime FechaEntrega { get; set; }
 

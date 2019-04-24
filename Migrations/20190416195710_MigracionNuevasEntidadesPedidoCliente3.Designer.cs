@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaKPI_API.Context;
 
 namespace SistemaKPI_API.Migrations
 {
     [DbContext(typeof(SistemaKPIContext))]
-    partial class SistemaKPIContextModelSnapshot : ModelSnapshot
+    [Migration("20190416195710_MigracionNuevasEntidadesPedidoCliente3")]
+    partial class MigracionNuevasEntidadesPedidoCliente3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,8 +79,7 @@ namespace SistemaKPI_API.Migrations
 
             modelBuilder.Entity("SistemaKPI_API.Entities.PedidoDiario", b =>
                 {
-                    b.Property<Guid>("IdPedidoDiario")
-                        .ValueGeneratedOnAdd();
+                    b.Property<Guid>("IdPedidoDiario");
 
                     b.Property<Guid?>("IdProducto");
 
@@ -86,13 +87,9 @@ namespace SistemaKPI_API.Migrations
 
                     b.Property<int>("NumDia");
 
-                    b.Property<Guid?>("PedidoSemanalIdPedidoSemanal");
-
                     b.HasKey("IdPedidoDiario");
 
                     b.HasIndex("IdProducto");
-
-                    b.HasIndex("PedidoSemanalIdPedidoSemanal");
 
                     b.ToTable("PedidoDiario");
                 });
@@ -247,13 +244,14 @@ namespace SistemaKPI_API.Migrations
 
             modelBuilder.Entity("SistemaKPI_API.Entities.PedidoDiario", b =>
                 {
+                    b.HasOne("SistemaKPI_API.Entities.PedidoSemanal")
+                        .WithMany("IdPedidoDiario")
+                        .HasForeignKey("IdPedidoDiario")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("SistemaKPI_API.Entities.Producto", "Producto")
                         .WithMany()
                         .HasForeignKey("IdProducto");
-
-                    b.HasOne("SistemaKPI_API.Entities.PedidoSemanal")
-                        .WithMany("IdPedidoDiario")
-                        .HasForeignKey("PedidoSemanalIdPedidoSemanal");
                 });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.Producto", b =>

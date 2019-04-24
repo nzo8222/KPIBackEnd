@@ -7,6 +7,7 @@ namespace SistemaKPI_API.Models
 {
     public class PedidoProductoKPI
     {
+        public Guid IdProductoInventario { get; set; }
         public string RazonSocial { get; set; }
         public string NombreProducto { get; set; }
         public string CodigoProducto { get; set; }
@@ -16,8 +17,8 @@ namespace SistemaKPI_API.Models
         public string Discrepancia { get; set; }
 
 
-        public string FechaRegistro { get; set; }
+        public DateTime FechaRegistro { get; set; }
 
-        public string FechaEntrega { get; set; }
+        public DateTime FechaEntrega { get; set; }
     }
 }

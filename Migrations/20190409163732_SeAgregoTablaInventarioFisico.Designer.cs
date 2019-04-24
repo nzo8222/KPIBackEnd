@@ -3,33 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaKPI_API.Context;
 
 namespace SistemaKPI_API.Migrations
 {
     [DbContext(typeof(SistemaKPIContext))]
-    partial class SistemaKPIContextModelSnapshot : ModelSnapshot
+    [Migration("20190409163732_SeAgregoTablaInventarioFisico")]
+    partial class SeAgregoTablaInventarioFisico
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.3-servicing-35854")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("SistemaKPI_API.Entities.Cliente", b =>
-                {
-                    b.Property<Guid>("IdCliente")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("RazonSocial");
-
-                    b.HasKey("IdCliente");
-
-                    b.ToTable("Clientes");
-                });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.InventarioFisico", b =>
                 {
@@ -75,58 +65,46 @@ namespace SistemaKPI_API.Migrations
                     b.ToTable("MovimientosAlmacen");
                 });
 
-            modelBuilder.Entity("SistemaKPI_API.Entities.PedidoDiario", b =>
+            modelBuilder.Entity("SistemaKPI_API.Entities.PedidoCliente", b =>
                 {
-                    b.Property<Guid>("IdPedidoDiario")
+                    b.Property<Guid>("IdPedidoCliente")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("IdProducto");
+                    b.Property<DateTime>("FechaEntrega");
 
-                    b.Property<int>("NumBolsas");
+                    b.Property<DateTime>("FechaRegistro");
 
-                    b.Property<int>("NumDia");
+                    b.HasKey("IdPedidoCliente");
 
-                    b.Property<Guid?>("PedidoSemanalIdPedidoSemanal");
-
-                    b.HasKey("IdPedidoDiario");
-
-                    b.HasIndex("IdProducto");
-
-                    b.HasIndex("PedidoSemanalIdPedidoSemanal");
-
-                    b.ToTable("PedidoDiario");
+                    b.ToTable("PedidosCliente");
                 });
 
-            modelBuilder.Entity("SistemaKPI_API.Entities.PedidoSemanal", b =>
+            modelBuilder.Entity("SistemaKPI_API.Entities.ProductoInventario", b =>
                 {
-                    b.Property<Guid>("IdPedidoSemanal")
+                    b.Property<Guid>("IdProductoInventario")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("FechaFinSemana");
+                    b.Property<string>("CantidadBolsas");
 
-                    b.Property<DateTime>("FechaInicioSemana");
+                    b.Property<string>("CodigoProducto");
 
-                    b.HasKey("IdPedidoSemanal");
+                    b.Property<string>("Cumplimiento");
 
-                    b.ToTable("PedidoSemanal");
-                });
+                    b.Property<string>("Devoluciones");
 
-            modelBuilder.Entity("SistemaKPI_API.Entities.Producto", b =>
-                {
-                    b.Property<Guid>("IdProducto")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Discrepancia");
 
-                    b.Property<int>("CodigoProducto");
-
-                    b.Property<Guid?>("IdCliente1");
+                    b.Property<Guid>("IdPedidoCliente");
 
                     b.Property<string>("NombreProducto");
 
-                    b.HasKey("IdProducto");
+                    b.Property<string>("RazonSocial");
 
-                    b.HasIndex("IdCliente1");
+                    b.HasKey("IdProductoInventario");
 
-                    b.ToTable("Productos");
+                    b.HasIndex("IdPedidoCliente");
+
+                    b.ToTable("ProductosInventario");
                 });
 
             modelBuilder.Entity("SistemaKPI_API.Entities.ReporteDiarioPedidosClienteCSV", b =>
@@ -245,22 +223,12 @@ namespace SistemaKPI_API.Migrations
                     b.ToTable("ReporteProduccion");
                 });
 
-            modelBuilder.Entity("SistemaKPI_API.Entities.PedidoDiario", b =>
+            modelBuilder.Entity("SistemaKPI_API.Entities.ProductoInventario", b =>
                 {
-                    b.HasOne("SistemaKPI_API.Entities.Producto", "Producto")
-                        .WithMany()
-                        .HasForeignKey("IdProducto");
-
-                    b.HasOne("SistemaKPI_API.Entities.PedidoSemanal")
-                        .WithMany("IdPedidoDiario")
-                        .HasForeignKey("PedidoSemanalIdPedidoSemanal");
-                });
-
-            modelBuilder.Entity("SistemaKPI_API.Entities.Producto", b =>
-                {
-                    b.HasOne("SistemaKPI_API.Entities.Cliente", "IdCliente")
-                        .WithMany()
-                        .HasForeignKey("IdCliente1");
+                    b.HasOne("SistemaKPI_API.Entities.PedidoCliente")
+                        .WithMany("ProductosContpaq")
+                        .HasForeignKey("IdPedidoCliente")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

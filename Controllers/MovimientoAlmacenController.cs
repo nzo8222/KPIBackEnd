@@ -124,7 +124,9 @@ namespace SistemaKPI_API.Controllers
             }
             else
             {
-                return new OkObjectResult("No se encontro el movimiento");
+                return new OkObjectResult(new RespuetaServidor
+                { Exitoso = false, MensajeError = "No se encontro el Movimiento" }
+           );
             }
             // Proceso de mapeo (puedes usar AutoMapper)
 
@@ -134,47 +136,49 @@ namespace SistemaKPI_API.Controllers
             await _context.SaveChangesAsync();
 
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            return new OkObjectResult(movimientoAlmacen);
+            return new OkObjectResult(new RespuetaServidor
+            { Exitoso = true, MensajeError = string.Empty }
+           );
         }
         private void CalcularKPIAlmacenCumplimiento()
         {
-            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+            //var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
 
-            double cumplimiento = 0.0;
-            foreach (var productoPedido in pedidos)
-            {
-                foreach (var producto in productoPedido.ProductosContpaq)
-                {
-                    // Obtiene todos los movimientos.
-                    var movimientos = _context.MovimientosAlmacen.ToArray();
+            //double cumplimiento = 0.0;
+            //foreach (var productoPedido in pedidos)
+            //{
+            //    foreach (var producto in productoPedido.ProductosContpaq)
+            //    {
+            //        // Obtiene todos los movimientos.
+            //        var movimientos = _context.MovimientosAlmacen.ToArray();
 
-                    var movimientoAlmacen = _context.MovimientosAlmacen.Where(a => a.CodigoProducto == producto.CodigoProducto
-                    && a.TipoMovimiento == "Salida"
-                    && a.FechaMovimiento >= productoPedido.FechaRegistro
-                    && a.FechaMovimiento <= productoPedido.FechaEntrega).FirstOrDefault();
+            //        var movimientoAlmacen = _context.MovimientosAlmacen.Where(a => a.CodigoProducto == producto.CodigoProducto
+            //        && a.TipoMovimiento == "Salida"
+            //        && a.FechaMovimiento >= productoPedido.FechaRegistro
+            //        && a.FechaMovimiento <= productoPedido.FechaEntrega).FirstOrDefault();
 
-                    // Si no se encuentra un movimiento en esa fecha continua.
-                    if (movimientoAlmacen == null) continue;
+            //        // Si no se encuentra un movimiento en esa fecha continua.
+            //        if (movimientoAlmacen == null) continue;
 
-                    // Si ya fue calculado no lo vuelvas a calcular.
-                    //if (producto.Cumplimiento == null) return Convert.ToDouble(producto.Cumplimiento);
+            //        // Si ya fue calculado no lo vuelvas a calcular.
+            //        //if (producto.Cumplimiento == null) return Convert.ToDouble(producto.Cumplimiento);
 
-                    var parsedNumeroBolsasMovimiento = Convert.ToInt32(movimientoAlmacen.NumBolsas);
-                    var parsedNumberobolsasProducto = Convert.ToInt32(producto.CantidadBolsas);
-                    var parsedNumerobolsasDevuelto = 0;
-                    if (producto.Devoluciones != null)
-                    {
-                        parsedNumerobolsasDevuelto = Convert.ToInt32(producto.Devoluciones);
-                    }
+            //        var parsedNumeroBolsasMovimiento = Convert.ToInt32(movimientoAlmacen.NumBolsas);
+            //        var parsedNumberobolsasProducto = Convert.ToInt32(producto.CantidadBolsas);
+            //        var parsedNumerobolsasDevuelto = 0;
+            //        if (producto.Devoluciones != null)
+            //        {
+            //            parsedNumerobolsasDevuelto = Convert.ToInt32(producto.Devoluciones);
+            //        }
 
-                    var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
+            //        var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
 
-                    cumplimiento = ((parsedNumeroBolsasMovimiento - parsedNumerobolsasDevuelto) * 100 / parsedNumberobolsasProducto) * .01;
+            //        cumplimiento = ((parsedNumeroBolsasMovimiento - parsedNumerobolsasDevuelto) * 100 / parsedNumberobolsasProducto) * .01;
 
-                    producto.Cumplimiento = cumplimiento.ToString();
-                    _context.SaveChanges();
-                }
-            }
+            //        producto.Cumplimiento = cumplimiento.ToString();
+            //        _context.SaveChanges();
+            //    }
+            //}
 
             //return cumplimiento;
         }

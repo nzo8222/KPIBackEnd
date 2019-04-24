@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaKPI_API.Context;
+using SistemaKPI_API.DTOs;
 using SistemaKPI_API.Entities;
 using SistemaKPI_API.Models;
 
@@ -23,28 +24,66 @@ namespace SistemaKPI_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddPedidoCliente([FromBody] PedidoCliente pedidoCliente)
+        public IActionResult AddPedidoCliente([FromBody] PedidoClienteDTO pedidoClienteDTO)
         {
+            //se pasan los pedidos diarios a una variable local en forma de arreglo
+            var pedidos = pedidoClienteDTO.PedidoDiarioDTO.ToArray();
+            //se declara una lista de pedidosDiarios para guardar 
+            //los pedidos diarios con id que se vayan generando
+            List<PedidoDiario> listaPedido = new List<PedidoDiario>();
+            //se declara un pedido semanal nuevo
+            PedidoSemanal ps = new PedidoSemanal();
+            //se Itera la lista de pedidos diarios para guardarlos con GUID
+            //se declara un pedido diario nuevo
+            
+            Producto p = new Producto();
+            foreach (var pedido in pedidos)
+            {
+                PedidoDiario pd = new PedidoDiario(Guid.NewGuid(), pedido.NumBolsas, pedido.NumDia);
+                //pd.IdPedidoDiario = Guid.NewGuid();
+               
+                    //var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
+                //se asignan los valores del DTO (sin id) al pedido diario (con ID auto generada)
+               
+                pd.Producto = _context.Productos.FirstOrDefault(pr => pr.IdProducto == pedido.IdProducto);
+                //pd.NumBolsas = pedido.NumBolsas;
+                //pd.NumDia = pedido.NumDia;
+                //se agregan los pedidos diarios a la lista
+                listaPedido.Add(pd);
+            }
+            ps.FechaInicioSemana = pedidoClienteDTO.FechaI;
+            ps.FechaFinSemana = pedidoClienteDTO.FechaF;
+            ps.IdPedidoDiario = listaPedido;
+            _context.PedidoSemanal.Add(ps);
+            _context.SaveChanges();
             // Agrega la fecha de hoy.
-            pedidoCliente.FechaRegistro = DateTime.Now; 
-             
-            // Agrega el pedido al contexto.
-            _context.PedidosCliente.Add(pedidoCliente);
+            //pedidoCliente.FechaRegistro = DateTime.Now; 
 
-            // Guarda los cambios en el contexto.
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                return new OkObjectResult(new RespuetaServidor
-                { Exitoso = false, MensajeError = ex.Message });
-            }
+            //// Agrega el pedido al contexto.
+            ////_context.PedidosCliente.Add(pedidoCliente);
+
+            //// Guarda los cambios en el contexto.
+            //try
+            //{
+            //    _context.SaveChanges();
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new OkObjectResult(new RespuetaServidor
+            //    { Exitoso = false, MensajeError = ex.Message });
+            //}
 
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
+        }
+
+        [HttpGet]
+        [Route("GetClientesPedido")]
+        public IActionResult GetClientes()
+        {
+            var clientes = _context.Clientes.ToList();
+            return new OkObjectResult(clientes);
         }
 
 
@@ -52,10 +91,82 @@ namespace SistemaKPI_API.Controllers
         [Route("GetPedidosProducto")]
         public IActionResult GetProductos()
         {
-            var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+            //Cliente clienteNuevo = new Cliente();
+            //clienteNuevo.RazonSocial = "Cliente prueba 2";
+            //Producto productoNuevo = new Producto();
+            //productoNuevo.CodigoProducto = 1112;
+            //productoNuevo.IdCliente = clienteNuevo;
+            //productoNuevo.NombreProducto = "producto prueba 3";
+            //Producto productoNuevo2 = new Producto();
+            //productoNuevo.CodigoProducto = 1113;
+            //productoNuevo.IdCliente = clienteNuevo;
+            //productoNuevo.NombreProducto = "producto prueba 3";
+            //PedidoDiario pedidoDiarioNuevo = new PedidoDiario();
+            //PedidoDiario pedidoDiarioNuevo2 = new PedidoDiario();
+            ////List<Producto> nuevaListaProducto = new List<Producto>();
+            ////nuevaListaProducto.Add(productoNuevo);
+            //pedidoDiarioNuevo.Producto = productoNuevo;
+            //pedidoDiarioNuevo.NumBolsas = 100;
+            //pedidoDiarioNuevo.NumDia = 3;
+            //pedidoDiarioNuevo2.Producto = productoNuevo2;
+            //pedidoDiarioNuevo2.NumBolsas = 200;
+            //pedidoDiarioNuevo2.NumDia = 4;
+            //PedidoSemanal pedidoSemanalNuevo = new PedidoSemanal();
+            //List<PedidoDiario> nuevaListaPedidoDiario = new List<PedidoDiario>();
+            //nuevaListaPedidoDiario.Add(pedidoDiarioNuevo);
+            //nuevaListaPedidoDiario.Add(pedidoDiarioNuevo2);
+            //pedidoSemanalNuevo.IdPedidoDiario = nuevaListaPedidoDiario;
+            //pedidoSemanalNuevo.FechaInicioSemana = new DateTime().Date;
+            //_context.Clientes.Add(clienteNuevo);
+            //_context.Productos.Add(productoNuevo);
+            //_context.PedidoDiario.Add(pedidoDiarioNuevo);
+            //_context.PedidoSemanal.Add(pedidoSemanalNuevo);
+            //_context.SaveChanges();
+            //var pedidos = _context.PedidoProductoKPI.ToList();
+                //_context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
 
-            return new OkObjectResult(pedidos);
+            return new OkObjectResult("");
         }
+
+        //[HttpPost]
+        //[Route("GetGraficaCumplimiento")]
+        //public async Task<IActionResult> GetDatosGraficaCumplimiento([FromBody]SolicitudFechas sol)
+        //{
+        //    try
+        //    {
+        //        // Crea diccionario con label del producto y sus cumplimientos.
+        //        var lstCumplimientos = new List<GraficaCumplimientoModel>();
+
+        //        // Se hace la busqueda de los pedidos dentro del periodo
+        //        //var pedidosClienteByFecha = await _context.PedidosCliente
+        //        //    .Include(p => p.ProductosContpaq)
+        //        //    .Where(p => p.FechaRegistro >= sol.FechaI && p.FechaRegistro <= sol.FechaF)
+        //        //    .ToArrayAsync();
+        //        // Se itera la lista de pedidos para obtener los productos de cada pedido
+        //        //foreach (var pedido in pedidosClienteByFecha)
+        //        //{
+        //        //    var lstCumplimientosValue = new List<decimal>();
+        //        //    string nombreProducto = "";
+
+        //        //    // Se itera la lista de productos para obtener el producto individual
+        //        //    foreach (var producto in pedido.ProductosContpaq)
+        //        //    {
+        //        //        // Se Guardan en variables locales los valores de cada producto
+        //        //        lstCumplimientosValue.Add(Convert.ToDecimal(producto.Cumplimiento) * 100);
+        //        //        nombreProducto = producto.NombreProducto;
+        //        //    }
+        //        //    // Se agregan los valores a la lista de cumplimiento
+        //        //    lstCumplimientos.Add(new GraficaCumplimientoModel { NombreProducto = nombreProducto, Cumplimientos = lstCumplimientosValue });
+        //        //}
+        //        // Se regresan los datos encontrados
+        //        return new OkObjectResult(lstCumplimientos.ToArray());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
     }
 }

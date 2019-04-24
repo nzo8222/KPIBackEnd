@@ -10,6 +10,6 @@ namespace SistemaKPI_API.Entities
     {
         [Key]
         public Guid IdCliente { get; set; }
-        public string Nombre { get; set; }
+        public string RazonSocial { get; set; }
     }
 }

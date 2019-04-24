@@ -9,5 +9,7 @@ namespace SistemaKPI_API.Models
     {
         public bool Exitoso { get; set; }
         public string MensajeError { get; set; }
+
+        public object Payload { get; set; }
     }
 }

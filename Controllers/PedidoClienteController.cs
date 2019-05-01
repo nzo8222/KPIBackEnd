@@ -46,7 +46,7 @@ namespace SistemaKPI_API.Controllers
                 //se asignan los valores del DTO (sin id) al pedido diario (con ID auto generada)
                 var Guid = new Guid(pedido.IdProducto);
                 pd.Producto = _context.Productos
-                    .Include(c => c.IdCliente)
+                    .Include(c => c.Cliente)
                     .FirstOrDefault(pr => pr.IdProducto == Guid)
                     ;
                 //pd.NumBolsas = pedido.NumBolsas;
@@ -56,7 +56,7 @@ namespace SistemaKPI_API.Controllers
             }
             ps.FechaInicioSemana = pedidoClienteDTO.FechaI;
             ps.FechaFinSemana = pedidoClienteDTO.FechaF;
-            ps.IdPedidoDiario = listaPedido;
+            ps.LstPedidosDiario = listaPedido;
             _context.PedidoSemanal.Add(ps);
             _context.SaveChanges();
             // Agrega la fecha de hoy.
@@ -142,7 +142,7 @@ namespace SistemaKPI_API.Controllers
 
                 // Se hace la busqueda de los pedidos dentro del periodo
                 var pedidosClienteByFecha = await _context.PedidoSemanal
-                    .Include(p => p.IdPedidoDiario)
+                    .Include(p => p.LstPedidosDiario)
                     .Where(p => 
                     p.FechaInicioSemana.Date >= sol.FechaI.Value.Date && 
                     p.FechaFinSemana.Date <= sol.FechaF.Value.Date)
@@ -154,7 +154,7 @@ namespace SistemaKPI_API.Controllers
                     string nombreProducto = "";
 
                     // Se itera la lista de productos para obtener el producto individual
-                    foreach (var producto in pedido.IdPedidoDiario)
+                    foreach (var producto in pedido.LstPedidosDiario)
                     {
                         var prod = _context.PedidoDiario
                        .Include(pd => pd.Producto)

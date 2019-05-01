@@ -147,14 +147,14 @@ namespace SistemaKPI_API.Controllers
             //var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
             var fecha = new DateTime(2019, 04, 28).Date;
             var pedidos = _context.PedidoSemanal
-                .Include(pd => pd.IdPedidoDiario)
+                .Include(pd => pd.LstPedidosDiario)
                 .Where(pd => pd.FechaInicioSemana.Date > fecha)
                 .ToArray();
 
             foreach(var pedido in pedidos)
             {
                 //foreach (var producto in productoPedido.ProductosContpaq)
-                foreach(var producto in pedido.IdPedidoDiario)
+                foreach(var producto in pedido.LstPedidosDiario)
                 {
 
                     var prod = _context.PedidoDiario

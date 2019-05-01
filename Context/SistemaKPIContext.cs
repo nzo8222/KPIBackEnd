@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SistemaKPI_API.Entities;
+using SistemaKPI_API.Entities.NewEntities;
 using SistemaKPI_API.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SistemaKPI_API.Context
 {
-    public class SistemaKPIContext : DbContext
+    public class SistemaKPIContext : IdentityDbContext<Usuario, Role, Guid>
     {
         public SistemaKPIContext(DbContextOptions<SistemaKPIContext> options) : base(options)
         {
@@ -16,6 +18,9 @@ namespace SistemaKPI_API.Context
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Llamar a la clase Identity de la que heredo.
+            base.OnModelCreating(modelBuilder);
+
             //modelBuilder.Entity<MovimientosAlmacen>()
             //    .HasOne(p => p.IdProducto)
             //    .WithOne()

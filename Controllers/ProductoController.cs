@@ -64,7 +64,7 @@ namespace SistemaKPI_API.Controllers
             Producto producto = new Producto();
             producto.CodigoProducto = productoDTOConCliente.CodigoProducto;
             producto.NombreProducto = productoDTOConCliente.NombreProducto;
-            producto.IdCliente = _context.Clientes
+            producto.Cliente = _context.Clientes
                 .FirstOrDefault(c => c.IdCliente == productoDTOConCliente.idCliente);
             try
             {
@@ -123,7 +123,7 @@ namespace SistemaKPI_API.Controllers
             //Se obtienen todos los productos de la BD
             var productos = _context
                 .Productos
-                .Include(p => p.IdCliente)
+                .Include(p => p.Cliente)
                 .ToList();
             //Se instancia una lista de productos
             var productosDelMismoCliente = new List<Producto>();
@@ -132,12 +132,12 @@ namespace SistemaKPI_API.Controllers
             {
                 //Si el producto tiene cliente se guarda el id para compararla
                 //con el id que se dio en la ruta
-                if (producto.IdCliente != null)
+                if (producto.Cliente != null)
                 {
 
 
                     //se compara el id del producto con el id de la ruta
-                    if (id == producto.IdCliente.IdCliente)
+                    if (id == producto.Cliente.IdCliente)
                     {
                         //si coincide se guarda
                         productosDelMismoCliente.Add(producto);

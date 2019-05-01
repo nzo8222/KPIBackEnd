@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SistemaKPI_API.Context;
+using SistemaKPI_API.Entities.NewEntities;
 
 namespace SistemaKPI_API
 {
@@ -24,6 +26,11 @@ namespace SistemaKPI_API
 
             // ContextoKPI
             services.AddDbContext<SistemaKPIContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Agrega autenticación.
+            services.AddIdentity<Usuario, Role>().AddEntityFrameworkStores<SistemaKPIContext>()
+                  .AddDefaultUI()
+                  .AddDefaultTokenProviders();
 
             // ContextContpaq
             services.AddDbContext<ContpaqContext>(o => o.UseSqlServer(Configuration.GetConnectionString("ContpaqConnection")));
@@ -47,9 +54,9 @@ namespace SistemaKPI_API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors("AllowAll");
             }
-
+            app.UseCors("AllowAll");
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

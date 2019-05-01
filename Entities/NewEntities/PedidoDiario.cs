@@ -16,7 +16,7 @@ namespace SistemaKPI_API.Entities
         public Producto Producto { get; set; }
         public int NumBolsas { get; set; }
         public int NumDia { get; set; }
-
+        public decimal Cumplimiento { get; set; }
         public PedidoDiario()
         {
 

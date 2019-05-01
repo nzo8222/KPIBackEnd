@@ -43,7 +43,43 @@ namespace SistemaKPI_API.Controllers
             //return new OkObjectResult(productoPrueba);
         }
 
-       
+        [HttpPost]
+        [Route("PostProducto")]
+        public IActionResult PostProducto([FromBody] ProductoDTOConCliente productoDTOConCliente)
+        {
+            var productos = _context.Productos.ToList();
+            foreach(var prod in productos)
+            {
+                if(prod.NombreProducto == productoDTOConCliente.NombreProducto)
+                {
+                    return new OkObjectResult(new RespuetaServidor
+                    { Exitoso = false, MensajeError = "Ya existe un producto con ese nombre" });
+                }
+                if (prod.CodigoProducto == productoDTOConCliente.CodigoProducto)
+                {
+                    return new OkObjectResult(new RespuetaServidor
+                    { Exitoso = false, MensajeError = "Ya existe un producto con ese codigo" });
+                }
+            }
+            Producto producto = new Producto();
+            producto.CodigoProducto = productoDTOConCliente.CodigoProducto;
+            producto.NombreProducto = productoDTOConCliente.NombreProducto;
+            producto.IdCliente = _context.Clientes
+                .FirstOrDefault(c => c.IdCliente == productoDTOConCliente.idCliente);
+            try
+            {
+                _context.Productos.Add(producto);
+                _context.SaveChanges();
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuetaServidor
+                { Exitoso = false, MensajeError = ex.Message });
+            }
+            return new OkObjectResult(new RespuetaServidor
+            { Exitoso = true, MensajeError = string.Empty });
+        }
+
         [HttpPost]
         [Route("PutProductoPedido")]
         public async Task<IActionResult> ModificarProductoPedido([FromBody] ProductoInventarioDTO productoPedidoDTO)

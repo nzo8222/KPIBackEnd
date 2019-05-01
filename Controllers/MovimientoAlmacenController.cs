@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using SistemaKPI_API.Context;
 using SistemaKPI_API.DTOs;
 using SistemaKPI_API.Entities;
@@ -51,7 +52,7 @@ namespace SistemaKPI_API.Controllers
                 return new OkObjectResult(new RespuetaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
-            CalcularKPIAlmacenCumplimiento();
+            CalcularKPIAlmacenCumplimiento(movimientoAlmacen);
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
@@ -140,10 +141,64 @@ namespace SistemaKPI_API.Controllers
             { Exitoso = true, MensajeError = string.Empty }
            );
         }
-        private void CalcularKPIAlmacenCumplimiento()
+        private void CalcularKPIAlmacenCumplimiento(MovimientosAlmacen2 mov)
         {
-            //var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
 
+            //var pedidos = _context.PedidosCliente.Include(p => p.ProductosContpaq).ToArray();
+            var fecha = new DateTime(2019, 04, 28).Date;
+            var pedidos = _context.PedidoSemanal
+                .Include(pd => pd.IdPedidoDiario)
+                .Where(pd => pd.FechaInicioSemana.Date > fecha)
+                .ToArray();
+
+            foreach(var pedido in pedidos)
+            {
+                //foreach (var producto in productoPedido.ProductosContpaq)
+                foreach(var producto in pedido.IdPedidoDiario)
+                {
+
+                    var prod = _context.PedidoDiario
+                        .Include(pd => pd.Producto)
+                        .Where(p => p.IdPedidoDiario == producto.IdPedidoDiario).FirstOrDefault();
+                    producto.Producto = prod.Producto;
+                    var fechaInicioSemana = pedido.FechaInicioSemana.AddDays(producto.NumDia).Date;
+                    var fechaMovimiento = mov.FechaMovimiento.Date;
+                    if (mov.CodigoProducto == Convert.ToString(producto.Producto.CodigoProducto)
+                        && fechaMovimiento == fechaInicioSemana
+                        && mov.TipoMovimiento == "Salida")
+                    {
+
+                    
+                    //var movimientoAlmacen = _context.MovimientosAlmacen
+                    //    .Where(a => a.CodigoProducto == Convert.ToString(producto.Producto.CodigoProducto)
+                    //    && a.TipoMovimiento == "Salida"
+                    //    && a.FechaMovimiento.Date == pedido.FechaInicioSemana.AddDays(producto.NumDia+1).Date
+                    //).FirstOrDefault();
+
+                    //// Si no se encuentra un movimiento en esa fecha continua.
+                    //if (movimientoAlmacen == null) continue;
+
+                    // Si ya fue calculado no lo vuelvas a calcular.
+                    //if (producto.Cumplimiento == null) return Convert.ToDouble(producto.Cumplimiento);
+
+                    var parsedNumeroBolsasMovimiento = Convert.ToInt32(mov.NumBolsas);
+                    var parsedNumberobolsasProducto = producto.NumBolsas;
+                    var parsedNumerobolsasDevuelto = 0;
+                    //if (producto.Devoluciones != null)
+                    //{
+                    //    parsedNumerobolsasDevuelto = Convert.ToInt32(producto.Devoluciones);
+                    //}
+
+                    var diferenciaBolsas = parsedNumberobolsasProducto - parsedNumeroBolsasMovimiento;
+
+                    var cumplimiento = ((parsedNumeroBolsasMovimiento - parsedNumerobolsasDevuelto) * 100 / parsedNumberobolsasProducto) * .01;
+
+                    producto.Cumplimiento = Convert.ToDecimal(cumplimiento);
+                    _context.SaveChanges();
+                    }
+                }
+               
+            }
             //double cumplimiento = 0.0;
             //foreach (var productoPedido in pedidos)
             //{

@@ -39,13 +39,16 @@ namespace SistemaKPI_API.Controllers
             Producto p = new Producto();
             foreach (var pedido in pedidos)
             {
-                PedidoDiario pd = new PedidoDiario(Guid.NewGuid(), pedido.NumBolsas, pedido.NumDia);
+                PedidoDiario pd = new PedidoDiario(new Guid(), pedido.NumBolsas, pedido.NumDia);
                 //pd.IdPedidoDiario = Guid.NewGuid();
-               
-                    //var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
+
+                //var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
                 //se asignan los valores del DTO (sin id) al pedido diario (con ID auto generada)
-               
-                pd.Producto = _context.Productos.FirstOrDefault(pr => pr.IdProducto == pedido.IdProducto);
+                var Guid = new Guid(pedido.IdProducto);
+                pd.Producto = _context.Productos
+                    .Include(c => c.IdCliente)
+                    .FirstOrDefault(pr => pr.IdProducto == Guid)
+                    ;
                 //pd.NumBolsas = pedido.NumBolsas;
                 //pd.NumDia = pedido.NumDia;
                 //se agregan los pedidos diarios a la lista
@@ -128,45 +131,51 @@ namespace SistemaKPI_API.Controllers
             return new OkObjectResult("");
         }
 
-        //[HttpPost]
-        //[Route("GetGraficaCumplimiento")]
-        //public async Task<IActionResult> GetDatosGraficaCumplimiento([FromBody]SolicitudFechas sol)
-        //{
-        //    try
-        //    {
-        //        // Crea diccionario con label del producto y sus cumplimientos.
-        //        var lstCumplimientos = new List<GraficaCumplimientoModel>();
+        [HttpPost]
+        [Route("GetGraficaCumplimiento")]
+        public async Task<IActionResult> GetDatosGraficaCumplimiento([FromBody]SolicitudFechas sol)
+        {
+            try
+            {
+                // Crea diccionario con label del producto y sus cumplimientos.
+                var lstCumplimientos = new List<GraficaCumplimientoModel>();
 
-        //        // Se hace la busqueda de los pedidos dentro del periodo
-        //        //var pedidosClienteByFecha = await _context.PedidosCliente
-        //        //    .Include(p => p.ProductosContpaq)
-        //        //    .Where(p => p.FechaRegistro >= sol.FechaI && p.FechaRegistro <= sol.FechaF)
-        //        //    .ToArrayAsync();
-        //        // Se itera la lista de pedidos para obtener los productos de cada pedido
-        //        //foreach (var pedido in pedidosClienteByFecha)
-        //        //{
-        //        //    var lstCumplimientosValue = new List<decimal>();
-        //        //    string nombreProducto = "";
+                // Se hace la busqueda de los pedidos dentro del periodo
+                var pedidosClienteByFecha = await _context.PedidoSemanal
+                    .Include(p => p.IdPedidoDiario)
+                    .Where(p => 
+                    p.FechaInicioSemana.Date >= sol.FechaI.Value.Date && 
+                    p.FechaFinSemana.Date <= sol.FechaF.Value.Date)
+                    .ToArrayAsync();
+                // Se itera la lista de pedidos para obtener los productos de cada pedido
+                foreach (var pedido in pedidosClienteByFecha)
+                {
+                    var lstCumplimientosValue = new List<decimal>();
+                    string nombreProducto = "";
 
-        //        //    // Se itera la lista de productos para obtener el producto individual
-        //        //    foreach (var producto in pedido.ProductosContpaq)
-        //        //    {
-        //        //        // Se Guardan en variables locales los valores de cada producto
-        //        //        lstCumplimientosValue.Add(Convert.ToDecimal(producto.Cumplimiento) * 100);
-        //        //        nombreProducto = producto.NombreProducto;
-        //        //    }
-        //        //    // Se agregan los valores a la lista de cumplimiento
-        //        //    lstCumplimientos.Add(new GraficaCumplimientoModel { NombreProducto = nombreProducto, Cumplimientos = lstCumplimientosValue });
-        //        //}
-        //        // Se regresan los datos encontrados
-        //        return new OkObjectResult(lstCumplimientos.ToArray());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
+                    // Se itera la lista de productos para obtener el producto individual
+                    foreach (var producto in pedido.IdPedidoDiario)
+                    {
+                        var prod = _context.PedidoDiario
+                       .Include(pd => pd.Producto)
+                       .Where(p => p.IdPedidoDiario == producto.IdPedidoDiario).FirstOrDefault();
+                        producto.Producto = prod.Producto;
+                        // Se Guardan en variables locales los valores de cada producto
+                        lstCumplimientosValue.Add(Convert.ToDecimal(producto.Cumplimiento) * 100);
+                        nombreProducto = producto.Producto.NombreProducto;
+                    }
+                    // Se agregan los valores a la lista de cumplimiento
+                    lstCumplimientos.Add(new GraficaCumplimientoModel { NombreProducto = nombreProducto, Cumplimientos = lstCumplimientosValue });
+                }
+                // Se regresan los datos encontrados
+                return new OkObjectResult(lstCumplimientos.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-        //}
+        }
 
     }
 }

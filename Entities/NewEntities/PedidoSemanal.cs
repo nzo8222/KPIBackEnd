@@ -11,7 +11,7 @@ namespace SistemaKPI_API.Entities
     {
         [Key]
         public Guid IdPedidoSemanal { get; set; }
-        [ForeignKey("IdPedidoDiario")]
+        //[ForeignKey("IdPedidoDiario")]
         public List<PedidoDiario> LstPedidosDiario { get; set; }
         public DateTime FechaInicioSemana { get; set; }
         public DateTime FechaFinSemana { get; set; }

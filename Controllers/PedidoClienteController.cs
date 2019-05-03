@@ -59,22 +59,6 @@ namespace SistemaKPI_API.Controllers
             ps.LstPedidosDiario = listaPedido;
             _context.PedidoSemanal.Add(ps);
             _context.SaveChanges();
-            // Agrega la fecha de hoy.
-            //pedidoCliente.FechaRegistro = DateTime.Now; 
-
-            //// Agrega el pedido al contexto.
-            ////_context.PedidosCliente.Add(pedidoCliente);
-
-            //// Guarda los cambios en el contexto.
-            //try
-            //{
-            //    _context.SaveChanges();
-            //}
-            //catch (Exception ex)
-            //{
-            //    return new OkObjectResult(new RespuetaServidor
-            //    { Exitoso = false, MensajeError = ex.Message });
-            //}
 
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty }

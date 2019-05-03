@@ -47,35 +47,51 @@ namespace SistemaKPI_API.Controllers
         [Route("PostProducto")]
         public IActionResult PostProducto([FromBody] ProductoDTOConCliente productoDTOConCliente)
         {
+            //Se obtiene la lista de todos los productos
             var productos = _context.Productos.ToList();
+            //Se itera la lista de productos
             foreach(var prod in productos)
             {
+                //Si encuentra un producto con el mismo nombre del
+                //producto que se intenta agregar marca error
                 if(prod.NombreProducto == productoDTOConCliente.NombreProducto)
                 {
+                    //Manda notificacion al usuario
                     return new OkObjectResult(new RespuetaServidor
                     { Exitoso = false, MensajeError = "Ya existe un producto con ese nombre" });
                 }
+                //Si encuentra un producto con el mismo codigo
+                //marca error y notifica al usuario
                 if (prod.CodigoProducto == productoDTOConCliente.CodigoProducto)
                 {
+                    //Manda notificacion al usuario
                     return new OkObjectResult(new RespuetaServidor
                     { Exitoso = false, MensajeError = "Ya existe un producto con ese codigo" });
                 }
             }
+            //Si no existe un producto con el nombre y codigo especificado
+            //Inicializa un objeto producto 
             Producto producto = new Producto();
+            //Asigna los atributos del DTO al producto inicializado
             producto.CodigoProducto = productoDTOConCliente.CodigoProducto;
             producto.NombreProducto = productoDTOConCliente.NombreProducto;
+            //Le asigna el cliente
             producto.Cliente = _context.Clientes
                 .FirstOrDefault(c => c.IdCliente == productoDTOConCliente.idCliente);
+            //Intenta añadirlo a la base de datos
             try
             {
+                
                 _context.Productos.Add(producto);
                 _context.SaveChanges();
             }
+            //Si hay un error notifica al usuario
             catch(Exception ex)
             {
                 return new OkObjectResult(new RespuetaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
+            //Si fue exitoso notifica al usuario
             return new OkObjectResult(new RespuetaServidor
             { Exitoso = true, MensajeError = string.Empty });
         }
@@ -114,7 +130,7 @@ namespace SistemaKPI_API.Controllers
             { Exitoso = true, MensajeError = string.Empty });
             //return new OkObjectResult(prodBD);
         }
-
+        //Metodo para obtener los productos con el ID del cliente especificado
         [HttpGet("{id}")]
         [Route("{id:guid}")]
         public IActionResult GetProductosPorID(Guid id)

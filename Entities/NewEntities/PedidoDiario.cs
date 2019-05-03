@@ -14,6 +14,8 @@ namespace SistemaKPI_API.Entities
 
         [ForeignKey("IdProducto")]
         public Producto Producto { get; set; }
+        [ForeignKey("IdPedidoSemanal")]
+        public PedidoSemanal PedidoSemanal { get; set; }
         public int NumBolsas { get; set; }
         public int NumDia { get; set; }
         public decimal Cumplimiento { get; set; }

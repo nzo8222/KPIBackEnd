@@ -13,6 +13,7 @@ namespace SistemaKPI_API.Entities
         public Guid IdProducto { get; set; }
 
         [ForeignKey("IdCliente")]
+
         public Cliente Cliente { get; set; }
 
         public int CodigoProducto { get; set; }

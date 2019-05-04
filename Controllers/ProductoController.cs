@@ -16,7 +16,7 @@ namespace SistemaKPI_API.Controllers
     [Produces("application/json")]
     [Consumes("application/json")]
     [Route("api/[controller]")]
-    public class ProductoController
+    public class ProductoController 
     {
         private readonly SistemaKPIContext _context;
         private readonly ContpaqContext _contpaqContext;
@@ -135,7 +135,7 @@ namespace SistemaKPI_API.Controllers
         [Route("{id:guid}")]
         public IActionResult GetProductosPorID(Guid id)
         {
-            
+           
             //Se obtienen todos los productos de la BD
             var productos = _context
                 .Productos

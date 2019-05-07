@@ -35,16 +35,18 @@ namespace SistemaKPI_API.Controllers
                 .Where(
                 p => p.FechaInicioSemana.Date > solicitudGraficaDTO.FechaInicio.Date &&
                 p.FechaFinSemana.Date < solicitudGraficaDTO.FechaFin.Date  )
+                .DistinctBy(p => p.IdPedidoSemanal)
                 .ToList();
            
             //lstPedidosSemanales.ElementAt(0).LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente
             //Se declara una lista de pedidos que coinciden con el cliente especificado
             List<PedidosSemanalesDTOGrafica> listaPedido = new List<PedidosSemanalesDTOGrafica>();
             //Se declara un objeto para asignarle valores y añadirlo a la lista
-            PedidosSemanalesDTOGrafica pedidoDTO = new PedidosSemanalesDTOGrafica();
+          
             //Se itera la lista de pedidos semanales
             foreach (var pedido in lstPedidosSemanales)
             {
+                PedidosSemanalesDTOGrafica pedidoDTO = new PedidosSemanalesDTOGrafica();
                 if (pedido.LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente != solicitudGraficaDTO.idCliente)
                 {
                     continue;
@@ -74,5 +76,6 @@ namespace SistemaKPI_API.Controllers
             }
             return new OkObjectResult(listaPedido);
         }
+        
     }
 }

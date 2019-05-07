@@ -97,7 +97,7 @@ namespace SistemaKPI_API.Controllers
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
 
         }
-        [HttpPut("{IdMovimientoAlmacen}")]
+        [HttpPut]
         [Route("PutMovimiento")]
         public async Task<IActionResult> ModificarMovimientoAlmacen([FromBody] MovimientosAlmacen2 movimientoAlmacen)
         {

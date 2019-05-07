@@ -116,8 +116,8 @@ namespace SistemaKPI_API.Controllers
         }
 
         [HttpPost]
-        [Route("GetGraficaCumplimiento")]
-        public async Task<IActionResult> GetDatosGraficaCumplimiento([FromBody]SolicitudFechas sol)
+        [Route("GetGraficaLineaCumplimiento")]
+        public async Task<IActionResult> GetDatosGraficaCumplimiento([FromBody]SolicitudGrafica sol)
         {
             try
             {
@@ -125,14 +125,13 @@ namespace SistemaKPI_API.Controllers
                 var lstCumplimientos = new List<GraficaCumplimientoModel>();
 
                 // Se hace la busqueda de los pedidos dentro del periodo
-                var pedidosClienteByFecha = await _context.PedidoSemanal
+                var pedidosSemanales = await _context.PedidoSemanal
                     .Include(p => p.LstPedidosDiario)
                     .Where(p => 
-                    p.FechaInicioSemana.Date >= sol.FechaI.Value.Date && 
-                    p.FechaFinSemana.Date <= sol.FechaF.Value.Date)
+                    p.IdPedidoSemanal == sol.IdPedidoSemanal)
                     .ToArrayAsync();
                 // Se itera la lista de pedidos para obtener los productos de cada pedido
-                foreach (var pedido in pedidosClienteByFecha)
+                foreach (var pedido in pedidosSemanales)
                 {
                     var lstCumplimientosValue = new List<decimal>();
                     string nombreProducto = "";
@@ -161,5 +160,59 @@ namespace SistemaKPI_API.Controllers
 
         }
 
+        [HttpPost]
+        [Route("GetGraficaBarrasCumplimiento")]
+        public async Task<IActionResult> GetDatosGraficaBarraCumplimiento([FromBody]SolicitudGrafica sol)
+        {
+            try
+            {
+                // Crea diccionario con label del producto y sus cumplimientos.
+                var lstCumplimientos = new List<GraficaBarrasCumplimientoModel>();
+
+                // Se hace la busqueda de los pedidos dentro del periodo
+                var pedidosSemanales = await _context.PedidoSemanal
+                    .Include(d => d.LstPedidosDiario)
+                      .ThenInclude(p => p.Producto)
+                    .Where(p =>
+                    p.IdPedidoSemanal == sol.IdPedidoSemanal)
+                    .ToArrayAsync();
+                // Se itera la lista de pedidos para obtener los productos de cada pedido
+                var lstNumBolsasPedido = new List<int>();
+                int numBolsasPedido;
+                foreach (var pedido in pedidosSemanales)
+                {
+                    var numBolsasCumplidas = new List<decimal>();
+                    string nombreProducto = "";
+
+                    // Se itera la lista de productos para obtener el producto individual
+                    foreach (var producto in pedido.LstPedidosDiario)
+                    {
+                       // var prod = _context.PedidoDiario
+                       //.Include(pd => pd.Producto)
+                       //.Where(p => p.IdPedidoDiario == producto.IdPedidoDiario).FirstOrDefault();
+                       // producto.Producto = prod.Producto;
+                        
+                        // Se Guardan en variables locales los valores de cada producto
+                        numBolsasCumplidas.Add(Convert.ToDecimal((producto.NumBolsas) * (producto.Cumplimiento)) );
+                        nombreProducto = producto.Producto.NombreProducto;
+                         numBolsasPedido = producto.NumBolsas;
+                        lstNumBolsasPedido.Add(numBolsasPedido);
+                    }
+                    // Se agregan los valores a la lista de cumplimiento
+                    lstCumplimientos.Add(new GraficaBarrasCumplimientoModel {
+                        NombreProducto = nombreProducto,
+                        NumBolsasEntregadas = numBolsasCumplidas,
+                        numBolsasPedidoDiario = lstNumBolsasPedido
+                    });
+                }
+                // Se regresan los datos encontrados
+                return new OkObjectResult(lstCumplimientos.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

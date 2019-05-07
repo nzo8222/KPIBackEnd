@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace SistemaKPI_API.Models
 {
-    public class SolicitudFechas
+    public class SolicitudGrafica
     {
-        public DateTime? FechaI { get; set; }
-        public DateTime? FechaF { get; set; }
+        public Guid IdPedidoSemanal { get; set; }
     }
 }

@@ -24,7 +24,21 @@ namespace SistemaKPI_API.Controllers
         {
             _context = ctx;
         }
-
+        [HttpGet]
+        [Route("GetMovimientosAlmacen")]
+        public async Task<IActionResult> GetMovimientosAlmacen()
+        {
+            try
+            {
+                var movimientos = await _context.MovimientosAlmacen.ToListAsync();
+                return new OkObjectResult(movimientos);
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new RespuetaServidor
+                { Exitoso = false, MensajeError = ex.Message });
+            }
+        }
         [HttpPost]
         [Route("PostMovimiento")]
         public async Task<IActionResult> AgregarMovimiento([FromBody] MovimientoAlmacenDTO movimientoAlmacenDTO)

@@ -195,7 +195,7 @@ namespace SistemaKPI_API.Controllers
                         // Se Guardan en variables locales los valores de cada producto
                         numBolsasCumplidas.Add(Convert.ToDecimal((producto.NumBolsas) * (producto.Cumplimiento)) );
                         nombreProducto = producto.Producto.NombreProducto;
-                         numBolsasPedido = producto.NumBolsas;
+                        numBolsasPedido = producto.NumBolsas;
                         lstNumBolsasPedido.Add(numBolsasPedido);
                     }
                     // Se agregan los valores a la lista de cumplimiento

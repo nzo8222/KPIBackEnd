@@ -21,6 +21,62 @@ namespace SistemaKPI_API.Controllers
         {
             _context = ctx;
         }
+        [HttpDelete("{id}")]
+        [Route("DeleteCliente/{id:guid}")]
+        public IActionResult DeleteClientePorID(Guid id)
+        {
+            try
+            {
+                var cliente = _context.Clientes.FirstOrDefault(c => c.IdCliente == id);
+                if( cliente != null)
+                {
+                    _context.Clientes.Remove(cliente);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el cliente" });
+                }
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty });
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
+        }
+        [HttpPost]
+        [Route("PutCliente")]
+        public IActionResult PutCliente([FromBody] Cliente cliente)
+        {
+            var clientebd = _context.Clientes.FirstOrDefault(c => c.IdCliente == cliente.IdCliente);
+            try
+            {
+                if(clientebd != null)
+                {
+                    clientebd.RazonSocial = cliente.RazonSocial;
+                    _context.Clientes.Update(clientebd);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el cliente." }
+                     );
+                }
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty }
+           );
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() }
+           );
+            }
+        }
 
         [HttpPost]
         [Route("PostCliente")]
@@ -35,7 +91,7 @@ namespace SistemaKPI_API.Controllers
                 if(ClienteDTO.RazonSocial == cliente.RazonSocial )
                 {
                     //Si ya existe un cliente con esa razon social regresa un mensaje de error.
-                    return new OkObjectResult(new RespuetaServidor
+                    return new OkObjectResult(new RespuestaServidor
                     { Exitoso = false, MensajeError = "Ya existe un cliente con ese nombre." });
                 }
             }
@@ -51,14 +107,14 @@ namespace SistemaKPI_API.Controllers
                 //Se guardan los cambios
                 _context.SaveChanges();
                 //Regresa un mensaje con el estad de la operacion
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = true, MensajeError = string.Empty });
 
             }
             catch(Exception ex)
             {
                 //Si falla regresa un mensaje con el resultado de la operacion
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
             

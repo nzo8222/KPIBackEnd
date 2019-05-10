@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SistemaKPI_API.Models
 {
-    public class RespuetaServidor
+    public class RespuestaServidor
     {
         public bool Exitoso { get; set; }
         public string MensajeError { get; set; }

@@ -8,6 +8,7 @@ using SistemaKPI_API.Context;
 using SistemaKPI_API.DTOs;
 using MoreLinq;
 using Microsoft.EntityFrameworkCore;
+using SistemaKPI_API.Models;
 
 namespace SistemaKPI_API.Controllers
 {
@@ -20,6 +21,58 @@ namespace SistemaKPI_API.Controllers
         {
             _context = ctx;
         }
+        [HttpGet("{id}")]
+        [Route("GetPedidoSemanalPorIdCliente/{id:guid}")]
+        public IActionResult GetPedidosSemanalesPorIDDelCliente(Guid id)
+        {
+            try
+            {
+                var pedidosSemanalesbd = _context.PedidoSemanal
+                    .Include(p => p.LstPedidosDiario)
+                        .ThenInclude(pr => pr.Producto)
+                            .ThenInclude(c => c.Cliente)
+                            .ToList();
+                List<PedidosSemanalesGridDTOPorIdDelCliente> listaPedidosSemanales = new List<PedidosSemanalesGridDTOPorIdDelCliente>();
+                foreach (var pedido in pedidosSemanalesbd)
+                {
+                    if(pedido.LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente == id)
+                    {
+                        PedidosSemanalesGridDTOPorIdDelCliente ps = new PedidosSemanalesGridDTOPorIdDelCliente();
+                        ps.IdPedidoSemanal = pedido.IdPedidoSemanal;
+                        ps.NombreProducto = pedido.LstPedidosDiario.ElementAt(0).Producto.NombreProducto;
+                        ps.CodigoProducto = pedido.LstPedidosDiario.ElementAt(0).Producto.CodigoProducto;
+                        ps.Cliente = pedido.LstPedidosDiario.ElementAt(0).Producto.Cliente.RazonSocial;
+                        ps.FechaInicio = pedido.FechaInicioSemana;
+                        ps.FechaFin = pedido.FechaFinSemana;
+                        ps.NumBolLunes = pedido.LstPedidosDiario.ElementAt(0).NumBolsas;
+                        ps.NumBolMartes = pedido.LstPedidosDiario.ElementAt(1).NumBolsas;
+                        ps.NumBolMiercoles = pedido.LstPedidosDiario.ElementAt(2).NumBolsas;
+                        ps.NumBolJueves = pedido.LstPedidosDiario.ElementAt(3).NumBolsas;
+                        ps.NumBolViernes = pedido.LstPedidosDiario.ElementAt(4).NumBolsas;
+                        ps.NumBolSabado = pedido.LstPedidosDiario.ElementAt(5).NumBolsas;
+                        ps.NumBolDomingo = pedido.LstPedidosDiario.ElementAt(6).NumBolsas;
+                        listaPedidosSemanales.Add(ps);
+                    }
+                }
+                if (listaPedidosSemanales.Any())
+                {
+                    return new OkObjectResult(listaPedidosSemanales);
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontraron pedidos" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
+        }
+
+
         //Metodo para obtener lista de pedidos semanales con nombre de producto y numero de bolsas
         [HttpPost]
         [Route("GetPedidosSemanal")]

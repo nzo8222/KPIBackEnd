@@ -56,11 +56,11 @@ namespace SistemaKPI_API.Controllers
             } 
             catch (Exception ex)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty });
             //return new OkObjectResult(prodBD);
         }

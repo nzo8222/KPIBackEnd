@@ -35,7 +35,7 @@ namespace SistemaKPI_API.Controllers
             }
             catch (Exception ex)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
         }
@@ -63,11 +63,11 @@ namespace SistemaKPI_API.Controllers
             }
             catch (Exception ex)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
             CalcularKPIAlmacenCumplimiento(movimientoAlmacen);
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
 
@@ -139,7 +139,7 @@ namespace SistemaKPI_API.Controllers
             }
             else
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = "No se encontro el Movimiento" }
            );
             }
@@ -151,7 +151,7 @@ namespace SistemaKPI_API.Controllers
             await _context.SaveChangesAsync();
 
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty }
            );
         }

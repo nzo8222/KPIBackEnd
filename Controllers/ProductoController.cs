@@ -26,7 +26,32 @@ namespace SistemaKPI_API.Controllers
             _context = ctx;
             _contpaqContext = ctxContpaq;
         }
-
+        [HttpDelete("{id}")]
+        [Route("DeleteProducto/{id:guid}")]
+        public IActionResult DeleteProducto(Guid id)
+        {
+            try
+            {
+                var productobd = _context.Productos.FirstOrDefault(p => p.IdProducto == id);
+                if(productobd != null)
+                {
+                    _context.Productos.Remove(productobd);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el producto en la bd." });
+                }
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty });
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
+        }
         [HttpGet]
         [Route("GetContpaqProducts")]
         public IActionResult GetContpaq()
@@ -57,7 +82,7 @@ namespace SistemaKPI_API.Controllers
                 if(prod.NombreProducto == productoDTOConCliente.NombreProducto)
                 {
                     //Manda notificacion al usuario
-                    return new OkObjectResult(new RespuetaServidor
+                    return new OkObjectResult(new RespuestaServidor
                     { Exitoso = false, MensajeError = "Ya existe un producto con ese nombre" });
                 }
                 //Si encuentra un producto con el mismo codigo
@@ -65,7 +90,7 @@ namespace SistemaKPI_API.Controllers
                 if (prod.CodigoProducto == productoDTOConCliente.CodigoProducto)
                 {
                     //Manda notificacion al usuario
-                    return new OkObjectResult(new RespuetaServidor
+                    return new OkObjectResult(new RespuestaServidor
                     { Exitoso = false, MensajeError = "Ya existe un producto con ese codigo" });
                 }
             }
@@ -88,52 +113,48 @@ namespace SistemaKPI_API.Controllers
             //Si hay un error notifica al usuario
             catch(Exception ex)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = ex.Message });
             }
             //Si fue exitoso notifica al usuario
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty });
         }
 
         [HttpPost]
-        [Route("PutProductoPedido")]
-        public async Task<IActionResult> ModificarProductoPedido([FromBody] ProductoInventarioDTO productoPedidoDTO)
+        [Route("PutProducto")]
+        public async Task<IActionResult> ModificarProducto([FromBody] ProductoDTOSinCliente productoPedidoDTO)
         {
-            //var prodBD = _context.ProductosInventario.FirstOrDefault(p => p.IdProductoInventario == productoPedidoDTO.IdProductoInventario);
-            //if (prodBD != null)
-            //{
-            //    prodBD.CodigoProducto = productoPedidoDTO.CodigoProducto;
-            //    prodBD.NombreProducto = productoPedidoDTO.NombreProducto;
-            //    prodBD.RazonSocial = productoPedidoDTO.RazonSocial;
-            //    prodBD.CantidadBolsas = productoPedidoDTO.CantidadBolsas;
-            //    prodBD.Cumplimiento = productoPedidoDTO.Cumplimiento;
-            //    prodBD.Devoluciones = productoPedidoDTO.Devoluciones;
-
-            //    _context.ProductosInventario.Update(prodBD);
-            //}
-            //else
-            //{
-            //    return new OkObjectResult(new RespuetaServidor
-            //    { Exitoso = false, MensajeError = "No se encontro el producto" });
-            //    //return new OkObjectResult("No se encontro el producto");
-            //}
-            // Proceso de mapeo (puedes usar AutoMapper)
-
-            //}
-            CalcularKPIAlmacenCumplimiento();
-            // Se guarda el estado del contexto para reflejar cambios.
-            await _context.SaveChangesAsync();
-
-            // Regresa un código de status 200 (OK) con un mensaje dentro del body.
-            return new OkObjectResult(new RespuetaServidor
-            { Exitoso = true, MensajeError = string.Empty });
-            //return new OkObjectResult(prodBD);
+            try
+            {
+                var productobd = await _context.Productos.FirstOrDefaultAsync(p => p.IdProducto == productoPedidoDTO.IdProducto);
+                if(productobd != null)
+                {
+                    productobd.CodigoProducto = productoPedidoDTO.CodigoProducto;
+                    productobd.NombreProducto = productoPedidoDTO.NombreProducto;
+                    _context.Productos.Update(productobd);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el producto" });
+                }
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty });
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
         }
+
+
         //Metodo para obtener los productos con el ID del cliente especificado
         [HttpGet("{id}")]
         [Route("{id:guid}")]
-        public IActionResult GetProductosPorID(Guid id)
+        public IActionResult GetProductosPorIDDelCliente(Guid id)
         {
            
             //Se obtienen todos los productos de la BD

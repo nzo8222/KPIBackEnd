@@ -60,7 +60,7 @@ namespace SistemaKPI_API.Controllers
             _context.PedidoSemanal.Add(ps);
             _context.SaveChanges();
 
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty }
             );
         }

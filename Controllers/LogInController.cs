@@ -35,11 +35,11 @@ namespace SistemaKPI_API.Controllers
 
             var result = await _usrMngr.CreateAsync(user, usuario.Password);
 
-            if (!result.Succeeded) return new OkObjectResult(new RespuetaServidor
+            if (!result.Succeeded) return new OkObjectResult(new RespuestaServidor
             { Exitoso = false, MensajeError = "No se pudo crear el usuario." }
          );
 
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty }
            );
             ;
@@ -52,7 +52,7 @@ namespace SistemaKPI_API.Controllers
             // Comprueba credenciales.
             if (string.IsNullOrEmpty(logInDTO.Usuario) || string.IsNullOrEmpty(logInDTO.Password))
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = true, MensajeError = "Es necesario ingresar información de inicio de sesión." });
             };
 
@@ -61,7 +61,7 @@ namespace SistemaKPI_API.Controllers
 
             if (user == null)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = "No se encontró el usuario." });
             };
 
@@ -70,11 +70,11 @@ namespace SistemaKPI_API.Controllers
 
             if (!passwordCheck)
             {
-                return new OkObjectResult(new RespuetaServidor
+                return new OkObjectResult(new RespuestaServidor
                 { Exitoso = false, MensajeError = "Password no coincide." });
             }
 
-            return new OkObjectResult(new RespuetaServidor
+            return new OkObjectResult(new RespuestaServidor
             { Exitoso = true, MensajeError = string.Empty });
         }
 

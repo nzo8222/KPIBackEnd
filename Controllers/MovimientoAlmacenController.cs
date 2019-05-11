@@ -111,42 +111,35 @@ namespace SistemaKPI_API.Controllers
             // Regresa un código de status 200 (OK) con un mensaje dentro del body.
 
         }
-        [HttpPut]
+        [HttpPost]
         [Route("PutMovimiento")]
-        public async Task<IActionResult> ModificarMovimientoAlmacen([FromBody] MovimientosAlmacen2 movimientoAlmacen)
+        public async Task<IActionResult> ModificarMovimientoAlmacen([FromBody] MovimientoAlmacenEditDTO movimientoAlmacen)
         {
-            //// Flujo nuevo producto.
-            //if (movimientoAlmacen.IdMovimientoAlmacen == Guid.Empty)
-            //{
-            //    // Se añade el producto al contexto.
-            //    await _context.MovimientosAlmacen.AddAsync(movimientoAlmacen);
-            //}
-            //// Flujo editar producto.
-            //else
-            //{
-            //    // Obtiene el producto desde el contexto.
-            var movbd = _context.MovimientosAlmacen.FirstOrDefault(p => p.IdMovimientoAlmacen == movimientoAlmacen.IdMovimientoAlmacen);
-
-            if (movbd != null)
+            try
             {
-                movbd.CodigoProducto = movimientoAlmacen.CodigoProducto;
-                movbd.NombreProducto = movimientoAlmacen.NombreProducto;
-                movbd.TipoMovimiento = movimientoAlmacen.TipoMovimiento;
-                movbd.NumBolsas = movimientoAlmacen.NumBolsas;
-                movbd.FechaMovimiento = movimientoAlmacen.FechaMovimiento;
-                movbd.Turno = movimientoAlmacen.Turno;
-                _context.MovimientosAlmacen.Update(movbd);
+                var movbd = _context.MovimientosAlmacen.FirstOrDefault(p => p.IdMovimientoAlmacen == movimientoAlmacen.IdMovimientoAlmacen);
+                if (movbd != null)
+                {
+                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.IdProducto == movimientoAlmacen.IdProducto);
+                    movbd.CodigoProducto = producto.CodigoProducto.ToString();
+                    movbd.NombreProducto = producto.NombreProducto;
+                    movbd.TipoMovimiento = movimientoAlmacen.TipoMovimiento;
+                    movbd.NumBolsas = movimientoAlmacen.NumBolsas.ToString();
+                    movbd.FechaMovimiento = movimientoAlmacen.FechaMovimiento;
+                    movbd.Turno = movimientoAlmacen.Turno;
+                    _context.MovimientosAlmacen.Update(movbd);
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el Movimiento" });
+                }
             }
-            else
+            catch(Exception ex)
             {
                 return new OkObjectResult(new RespuestaServidor
-                { Exitoso = false, MensajeError = "No se encontro el Movimiento" }
-           );
+                { Exitoso = false, MensajeError = ex.ToString() });
             }
-            // Proceso de mapeo (puedes usar AutoMapper)
-
-            //}
-
             // Se guarda el estado del contexto para reflejar cambios.
             await _context.SaveChangesAsync();
 

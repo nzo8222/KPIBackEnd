@@ -21,6 +21,98 @@ namespace SistemaKPI_API.Controllers
         {
             _context = ctx;
         }
+        [HttpDelete("{id}")]
+        [Route("DeletePedidoSemanal/{id:guid}")]
+        public IActionResult DeletePedidoSemanal(Guid id)
+        {
+            try
+            {
+                var pedidoSemanalBD = _context.PedidoSemanal
+                    .Include(pd => pd.LstPedidosDiario)
+                    .FirstOrDefault(p => p.IdPedidoSemanal == id);
+                if(pedidoSemanalBD != null)
+                {
+                    foreach(var pedido in pedidoSemanalBD.LstPedidosDiario)
+                    {
+                        _context.PedidoDiario.Remove(pedido);
+                    }
+                    _context.PedidoSemanal.Remove(pedidoSemanalBD);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontro el pedido semanal." });
+                }
+                    
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
+            return new OkObjectResult(new RespuestaServidor
+            { Exitoso = true, MensajeError = string.Empty });
+        }
+
+        [HttpPost]
+        [Route("PutPedidoSemanal")]
+        public IActionResult PutPedidoSemanal ([FromBody] PedidoSemanalEditDTO PedidoDTO)
+        {
+            try
+            {
+                var pedidosSemanalesbd = _context.PedidoSemanal
+                    .Include(p => p.LstPedidosDiario)
+                        .ThenInclude(pr => pr.Producto)
+                            .ToList();
+                var producto = _context.Productos.FirstOrDefault(p => p.IdProducto == PedidoDTO.IdProducto);
+                foreach (var pedido in pedidosSemanalesbd)
+                {
+                    if(pedido.IdPedidoSemanal == PedidoDTO.IdPedidoSemanal)
+                    {
+                        pedido.FechaInicioSemana = PedidoDTO.FechaInicio;
+                        pedido.FechaFinSemana = PedidoDTO.FechaFin;
+                        if(producto != null)
+                        {
+                            pedido.LstPedidosDiario.ElementAt(0).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(1).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(2).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(3).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(4).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(5).Producto = producto;
+                            pedido.LstPedidosDiario.ElementAt(6).Producto = producto;
+                        }
+                        pedido.LstPedidosDiario.ElementAt(0).NumBolsas = PedidoDTO.NumBolLunes;
+                        
+                        pedido.LstPedidosDiario.ElementAt(1).NumBolsas = PedidoDTO.NumBolMartes;
+                        
+                        pedido.LstPedidosDiario.ElementAt(2).NumBolsas = PedidoDTO.NumBolMiercoles;
+                        
+                        pedido.LstPedidosDiario.ElementAt(3).NumBolsas = PedidoDTO.NumBolJueves;
+                       
+                        pedido.LstPedidosDiario.ElementAt(4).NumBolsas = PedidoDTO.NumBolViernes;
+                        
+                        pedido.LstPedidosDiario.ElementAt(5).NumBolsas = PedidoDTO.NumBolSabado;
+                        
+                        pedido.LstPedidosDiario.ElementAt(6).NumBolsas = PedidoDTO.NumBolDomingo;
+                        _context.PedidoSemanal.Update(pedido);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
+            }
+            return new OkObjectResult(new RespuestaServidor
+            { Exitoso = true, MensajeError = string.Empty });
+        }
+
         [HttpGet("{id}")]
         [Route("GetPedidoSemanalPorIdCliente/{id:guid}")]
         public IActionResult GetPedidosSemanalesPorIDDelCliente(Guid id)

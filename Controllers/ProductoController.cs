@@ -156,39 +156,48 @@ namespace SistemaKPI_API.Controllers
         [Route("{id:guid}")]
         public IActionResult GetProductosPorIDDelCliente(Guid id)
         {
-           
-            //Se obtienen todos los productos de la BD
-            var productos = _context
-                .Productos
-                .Include(p => p.Cliente)
-                .ToList();
-            //Se instancia una lista de productos
-            var productosDelMismoCliente = new List<Producto>();
-            //Se Itera la lista de productos de la BD
-            foreach (var producto in productos)
+            try
             {
-                //Si el producto tiene cliente se guarda el id para compararla
-                //con el id que se dio en la ruta
-                if (producto.Cliente != null)
+                //Se obtienen todos los productos de la BD
+                var productos = _context
+                    .Productos
+                    .Include(p => p.Cliente)
+                    .ToList();
+                //Se instancia una lista de productos
+                var productosDelMismoCliente = new List<Producto>();
+                //Se Itera la lista de productos de la BD
+                foreach (var producto in productos)
                 {
-
-
-                    //se compara el id del producto con el id de la ruta
-                    if (id == producto.Cliente.IdCliente)
+                    //Si el producto tiene cliente se guarda el id para compararla
+                    //con el id que se dio en la ruta
+                    if (producto.Cliente != null)
                     {
-                        //si coincide se guarda
-                        productosDelMismoCliente.Add(producto);
+
+
+                        //se compara el id del producto con el id de la ruta
+                        if (id == producto.Cliente.IdCliente)
+                        {
+                            //si coincide se guarda
+                            productosDelMismoCliente.Add(producto);
+                        }
                     }
                 }
+                //si no se encontro ningun producto se regresa un mensaje
+                if (productosDelMismoCliente.Count == 0)
+                {
+                    //mensaje
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "El cliente no tiene productos registrados." });
+                }
+                //se regresa una lista con los productos del mismo cliente
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty, Payload=productosDelMismoCliente });
             }
-            //si no se encontro ningun producto se regresa un mensaje
-            if(productosDelMismoCliente.Count == 0)
+            catch(Exception ex)
             {
-                //mensaje
-                return new OkObjectResult("No hay productos.");
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.ToString() });
             }
-            //se regresa una lista con los productos del mismo cliente
-            return new OkObjectResult(productosDelMismoCliente);
         }
 
         private void CalcularKPIAlmacenCumplimiento()

@@ -69,8 +69,19 @@ namespace SistemaKPI_API.Controllers
         [Route("GetClientesPedido")]
         public IActionResult GetClientes()
         {
-            var clientes = _context.Clientes.ToList();
-            return new OkObjectResult(clientes);
+            try
+            {
+                var clientes = _context.Clientes.ToList();
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = string.Empty, Payload = clientes }
+            );
+            }
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = true, MensajeError = ex.Message  });
+            }
+
         }
 
 

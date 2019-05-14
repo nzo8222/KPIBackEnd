@@ -148,7 +148,8 @@ namespace SistemaKPI_API.Controllers
                 }
                 if (listaPedidosSemanales.Any())
                 {
-                    return new OkObjectResult(listaPedidosSemanales);
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = true, MensajeError = string.Empty, Payload = listaPedidosSemanales });
                 }
                 else
                 {
@@ -160,7 +161,7 @@ namespace SistemaKPI_API.Controllers
             catch (Exception ex)
             {
                 return new OkObjectResult(new RespuestaServidor
-                { Exitoso = false, MensajeError = ex.ToString() });
+                { Exitoso = false, MensajeError = ex.Message });
             }
         }
 
@@ -170,56 +171,70 @@ namespace SistemaKPI_API.Controllers
         [Route("GetPedidosSemanal")]
         public IActionResult GetPedidosSemanales([FromBody] SolicitudGraficaDTO solicitudGraficaDTO )
         {
-            //Se obtiene una lista de pedidos semanales dentro del rango de fechas 
-            //Donde se incluyen los pedidos diarios, producto y cliente (p => p.Producto.Cliente)
-            var lstPedidosSemanales = _context
-                .PedidoSemanal
-                .Include(d => d.LstPedidosDiario)
-                    .ThenInclude(p => p.Producto)
-                        .ThenInclude(c => c.Cliente)
-                .Where(
-                p => p.FechaInicioSemana.Date > solicitudGraficaDTO.FechaInicio.Date &&
-                p.FechaFinSemana.Date < solicitudGraficaDTO.FechaFin.Date  )
-                .DistinctBy(p => p.IdPedidoSemanal)
-                .ToList();
-           
-            //lstPedidosSemanales.ElementAt(0).LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente
-            //Se declara una lista de pedidos que coinciden con el cliente especificado
-            List<PedidosSemanalesDTOGrafica> listaPedido = new List<PedidosSemanalesDTOGrafica>();
-            //Se declara un objeto para asignarle valores y añadirlo a la lista
-          
-            //Se itera la lista de pedidos semanales
-            foreach (var pedido in lstPedidosSemanales)
+            try
             {
-                PedidosSemanalesDTOGrafica pedidoDTO = new PedidosSemanalesDTOGrafica();
-                if (pedido.LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente != solicitudGraficaDTO.idCliente)
-                {
-                    continue;
-                }
-                pedidoDTO.IdPedidoSemanal = pedido.IdPedidoSemanal;
-                pedidoDTO.NombreProducto = pedido.LstPedidosDiario.ElementAt(0).Producto.NombreProducto;
-                pedidoDTO.FechaInicio = pedido.FechaInicioSemana;
-                pedidoDTO.FechaFin = pedido.FechaFinSemana;
-                //Se itera la lista de pedidos diarios dentro de un pedido semanal
-                foreach(var p in pedido.LstPedidosDiario)
-                {
-                    pedidoDTO.NumBolsas += p.NumBolsas;
-                    pedidoDTO.promedioCumplimiento += p.Cumplimiento;
-                    ////Se buscan los pedidos con el cliente especificado
-                    //if(p.Producto.Cliente.IdCliente == solicitudGraficaDTO.idCliente)
-                    //{
-                    //    pedidoDTO.IdPedidoSemanal = pedido.IdPedidoSemanal;
-                    //    pedidoDTO.NombreProducto = p.Producto.NombreProducto;
-                    //    pedidoDTO.NumBolsas = p.NumBolsas;
-                    //    pedidoDTO.FechaInicio = pedido.FechaInicioSemana;
-                    //    pedidoDTO.FechaFin = pedido.FechaFinSemana;
-                    //}
+                //Se obtiene una lista de pedidos semanales dentro del rango de fechas 
+                //Donde se incluyen los pedidos diarios, producto y cliente (p => p.Producto.Cliente)
+                var lstPedidosSemanales = _context
+                    .PedidoSemanal
+                    .Include(d => d.LstPedidosDiario)
+                        .ThenInclude(p => p.Producto)
+                            .ThenInclude(c => c.Cliente)
+                    .Where(
+                    p => p.FechaInicioSemana.Date > solicitudGraficaDTO.FechaInicio.Date &&
+                    p.FechaFinSemana.Date < solicitudGraficaDTO.FechaFin.Date)
+                    .DistinctBy(p => p.IdPedidoSemanal)
+                    .ToList();
 
+                //lstPedidosSemanales.ElementAt(0).LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente
+                //Se declara una lista de pedidos que coinciden con el cliente especificado
+                List<PedidosSemanalesDTOGrafica> listaPedido = new List<PedidosSemanalesDTOGrafica>();
+                //Se declara un objeto para asignarle valores y añadirlo a la lista
+
+                //Se itera la lista de pedidos semanales
+                foreach (var pedido in lstPedidosSemanales)
+                {
+                    PedidosSemanalesDTOGrafica pedidoDTO = new PedidosSemanalesDTOGrafica();
+                    if (pedido.LstPedidosDiario.ElementAt(0).Producto.Cliente.IdCliente != solicitudGraficaDTO.idCliente)
+                    {
+                        continue;
+                    }
+                    pedidoDTO.IdPedidoSemanal = pedido.IdPedidoSemanal;
+                    pedidoDTO.NombreProducto = pedido.LstPedidosDiario.ElementAt(0).Producto.NombreProducto;
+                    pedidoDTO.FechaInicio = pedido.FechaInicioSemana;
+                    pedidoDTO.FechaFin = pedido.FechaFinSemana;
+                    //Se itera la lista de pedidos diarios dentro de un pedido semanal
+                    foreach (var p in pedido.LstPedidosDiario)
+                    {
+                        pedidoDTO.NumBolsas += p.NumBolsas;
+                        pedidoDTO.promedioCumplimiento += p.Cumplimiento;
+                        ////Se buscan los pedidos con el cliente especificado
+                        //if(p.Producto.Cliente.IdCliente == solicitudGraficaDTO.idCliente)
+                        //{
+                        //    pedidoDTO.IdPedidoSemanal = pedido.IdPedidoSemanal;
+                        //    pedidoDTO.NombreProducto = p.Producto.NombreProducto;
+                        //    pedidoDTO.NumBolsas = p.NumBolsas;
+                        //    pedidoDTO.FechaInicio = pedido.FechaInicioSemana;
+                        //    pedidoDTO.FechaFin = pedido.FechaFinSemana;
+                        //}
+
+                    }
+                    pedidoDTO.promedioCumplimiento = pedidoDTO.promedioCumplimiento / 7;
+                    listaPedido.Add(pedidoDTO);
                 }
-                pedidoDTO.promedioCumplimiento = pedidoDTO.promedioCumplimiento / 7;
-                listaPedido.Add(pedidoDTO);
+                if (listaPedido.Any())
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = true, MensajeError = string.Empty, Payload = listaPedido });
+                }
             }
-            return new OkObjectResult(listaPedido);
+            catch(Exception ex)
+            {
+                return new OkObjectResult(new RespuestaServidor
+                { Exitoso = false, MensajeError = ex.Message });
+            }
+            return new OkObjectResult(new RespuestaServidor
+            { Exitoso = false, MensajeError = "No se encontro pedidos que coincida con los datos especificados." });
         }
         
     }

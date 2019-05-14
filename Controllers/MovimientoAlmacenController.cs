@@ -47,7 +47,7 @@ namespace SistemaKPI_API.Controllers
             catch (Exception ex)
             {
                 return new OkObjectResult(new RespuestaServidor
-                { Exitoso = false, MensajeError = ex.ToString() });
+                { Exitoso = false, MensajeError = ex.Message });
             }
         }
         [HttpGet]
@@ -57,7 +57,16 @@ namespace SistemaKPI_API.Controllers
             try
             {
                 var movimientos = await _context.MovimientosAlmacen.ToListAsync();
-                return new OkObjectResult(movimientos);
+                if(movimientos != null)
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = true, MensajeError = string.Empty, Payload = movimientos });
+                }
+                else
+                {
+                    return new OkObjectResult(new RespuestaServidor
+                    { Exitoso = false, MensajeError = "No se encontraron movimientos." });
+                }
             }
             catch (Exception ex)
             {

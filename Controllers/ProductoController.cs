@@ -130,6 +130,21 @@ namespace SistemaKPI_API.Controllers
                 var productobd = await _context.Productos.FirstOrDefaultAsync(p => p.IdProducto == productoPedidoDTO.IdProducto);
                 if(productobd != null)
                 {
+                    var productos = _context.Productos.ToList();
+
+                    foreach (var prod in productos)
+                    {
+                        if (prod.NombreProducto == productoPedidoDTO.NombreProducto)
+                        {
+                            return new OkObjectResult(new RespuestaServidor
+                            { Exitoso = false, MensajeError = "Ya existe un producto con ese Nombre" });
+                        }
+                        if(prod.CodigoProducto == productoPedidoDTO.CodigoProducto)
+                        {
+                            return new OkObjectResult(new RespuestaServidor
+                            { Exitoso = false, MensajeError = "Ya existe un producto con ese Codigo" });
+                        }
+                    }
                     productobd.CodigoProducto = productoPedidoDTO.CodigoProducto;
                     productobd.NombreProducto = productoPedidoDTO.NombreProducto;
                     _context.Productos.Update(productobd);
